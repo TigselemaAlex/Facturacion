@@ -3,12 +3,14 @@ package com.capibaracode.backend.domain.entities;
 import com.capibaracode.backend.util.enums.CompanyType;
 import com.capibaracode.backend.util.enums.EnvironmentType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,7 +25,7 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
 
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, length = 80, unique = true)
     private String name;
 
     @Column(nullable = false, unique = true, length = 120)
@@ -50,6 +52,10 @@ public class Company {
     @Enumerated(EnumType.STRING)
     private EnvironmentType environment;
 
-    @OneToMany(orphanRemoval = true)
-    private Set<User> users;
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "company")
+    private Set<User> users = new HashSet<>();
+
+    public void addUser(@NotNull User user){
+        users.add(user);
+    }
 }
