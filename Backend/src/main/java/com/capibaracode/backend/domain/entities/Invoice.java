@@ -32,6 +32,6 @@ public class Invoice {
     private Client client;
     @ManyToOne
     private Payment payment;
-    @OneToMany
+    @OneToMany(mappedBy = "invoice")
     private List<InvoiceDetail> details;
 }

@@ -12,7 +12,11 @@ import com.capibaracode.backend.infraestructure.abstract_services.IUserService;
 import com.capibaracode.backend.util.enums.Role;
 import com.capibaracode.backend.util.mappers.CompanyMapper;
 import com.capibaracode.backend.util.mappers.UserMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.transaction.Transactional;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +27,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @Transactional
 public class UserServiceImpl implements IUserService, UserDetailsService {
@@ -31,7 +38,6 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
-
     private final ResponseBuilder responseBuilder;
     @Autowired
     public UserServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, PasswordEncoder passwordEncoder, JdbcTemplate jdbcTemplate, ResponseBuilder responseBuilder) {
@@ -58,7 +64,15 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         company.addUser(adminUser);
         Company companyFromDB = companyRepository.save(company);
         String schemaName = companyFromDB.getName();
-        jdbcTemplate.execute("CREATE SCHEMA " + schemaName);
+
+        Flyway flyway = Flyway.configure()
+                .baselineOnMigrate(true)
+                .dataSource(jdbcTemplate.getDataSource())
+                .schemas(schemaName)
+                .locations("classpath:db/migration")
+                .load();
+        flyway.migrate();
+
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Compania registrada exitosamente");
     }
 
