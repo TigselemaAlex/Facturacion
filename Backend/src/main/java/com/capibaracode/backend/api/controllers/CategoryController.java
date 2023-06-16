@@ -3,6 +3,7 @@ package com.capibaracode.backend.api.controllers;
 import com.capibaracode.backend.api.models.requests.CategoryRequest;
 import com.capibaracode.backend.common.CustomAPIResponse;
 import com.capibaracode.backend.infraestructure.abstract_services.ICategoryService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomAPIResponse<?>> save(@RequestBody final CategoryRequest request){
+    public ResponseEntity<CustomAPIResponse<?>> save(@Valid @RequestBody final CategoryRequest request){
         return categoryService.save(request);
     }
 
@@ -30,16 +31,16 @@ public class CategoryController {
     }
 
     @GetMapping(value = "/{category}")
-    public ResponseEntity<CustomAPIResponse<?>> getByCategory(String category){
+    public ResponseEntity<CustomAPIResponse<?>> getByCategory(@PathVariable final String category){
         return categoryService.findByNameCategory(category);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable final UUID id, @RequestBody final CategoryRequest request){
+    public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable final UUID id, @Valid @RequestBody final CategoryRequest request){
         return categoryService.update(id, request);
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<CustomAPIResponse<?>> delete(@PathVariable final UUID id){
         return categoryService.delete(id);
     }

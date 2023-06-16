@@ -3,12 +3,16 @@ package com.capibaracode.backend.api.models.responses;
 import com.capibaracode.backend.domain.entities.Promotion;
 import com.capibaracode.backend.domain.entities.Tax;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 
 public class CategoryResponse {
@@ -17,7 +21,7 @@ public class CategoryResponse {
 
     private Boolean status;
 
-    private Promotion promotion;
+    private UUID promotionId;
 
-    private Tax tax;
+    private UUID taxId;
 }

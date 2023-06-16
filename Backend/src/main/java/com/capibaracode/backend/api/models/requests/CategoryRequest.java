@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,9 +24,8 @@ public class CategoryRequest {
     @NotBlank(message = "El estado de la categoría es obligatorio")
     private Boolean status;
 
-    private Promotion promotion;
+    private UUID promotionId;
 
-    @NotBlank(message = "El valor de impuesto de la categoría es obligatorio")
-    private Tax tax;
+    private UUID taxId;
 
 }

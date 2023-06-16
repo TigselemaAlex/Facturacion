@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
 
-    Category findByCategory(String category);
+    Optional<Category> findByCategory(String category);
 
 }
