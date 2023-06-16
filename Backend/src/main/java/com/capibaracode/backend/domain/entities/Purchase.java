@@ -29,6 +29,6 @@ public class Purchase {
     private Payment payment;
     @ManyToOne
     private User user;
-    @OneToMany
+    @OneToMany (mappedBy = "purchase")
     private List<PurchaseDetail> details;
 }

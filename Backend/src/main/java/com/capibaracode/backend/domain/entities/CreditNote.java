@@ -24,6 +24,6 @@ public class CreditNote {
     private LocalDate issueDate;
     @ManyToOne
     private Invoice invoice;
-    @OneToMany
+    @OneToMany(mappedBy = "creditNote")
     private List<CreditNoteDetail> details;
 }
