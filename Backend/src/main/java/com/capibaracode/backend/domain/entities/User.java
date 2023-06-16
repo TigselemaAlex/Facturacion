@@ -22,7 +22,7 @@ public class User {
     @Column(nullable = false, length = 20, unique = true)
     private String username;
 
-    @Column(nullable = false, length = 16)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -32,6 +32,9 @@ public class User {
     @Column(nullable = false, length = 80)
     private String fullName;
 
+    @Column(nullable = false, length = 180)
+    private String email;
+
     @Column(nullable = false, unique = true, length = 20)
     private String identification;
 
@@ -39,9 +42,9 @@ public class User {
     private String telephone;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 20)
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Company company;
 }
