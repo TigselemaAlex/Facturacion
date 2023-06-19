@@ -2,6 +2,7 @@ package com.capibaracode.backend.api.models.requests;
 
 import com.capibaracode.backend.util.enums.CompanyType;
 import com.capibaracode.backend.util.enums.EnvironmentType;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,6 +24,7 @@ public class RegisterRequest {
 
     @NotBlank(message = "El email de la compania/negocio es obligatorio")
     @Size(max = 120, message = "El email de la compania/negocio no puede tener más de 120 caracteres")
+    @Email(message = "El email no tiene el formato correcto")
     private String email;
 
     @NotBlank(message = "El ruc de la compania/negocio es obligatorio")
