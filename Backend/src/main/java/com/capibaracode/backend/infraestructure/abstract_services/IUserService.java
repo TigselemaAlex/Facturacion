@@ -5,5 +5,5 @@ import com.capibaracode.backend.common.CustomAPIResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface IUserService {
-     ResponseEntity<CustomAPIResponse<?>> save(RegisterRequest request);
+     ResponseEntity<CustomAPIResponse<?>> register(RegisterRequest request);
 }

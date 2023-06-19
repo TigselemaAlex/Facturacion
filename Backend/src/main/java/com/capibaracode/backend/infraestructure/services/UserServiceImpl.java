@@ -4,6 +4,7 @@ package com.capibaracode.backend.infraestructure.services;
 import com.capibaracode.backend.api.models.requests.RegisterRequest;
 import com.capibaracode.backend.common.CustomAPIResponse;
 import com.capibaracode.backend.common.ResponseBuilder;
+import com.capibaracode.backend.config.security.model.UserPrincipal;
 import com.capibaracode.backend.domain.entities.Company;
 import com.capibaracode.backend.domain.entities.User;
 import com.capibaracode.backend.domain.repositories.CompanyRepository;
@@ -28,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -49,22 +51,20 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> save(RegisterRequest request) {
+    public ResponseEntity<CustomAPIResponse<?>> register(RegisterRequest request) {
         Company company = CompanyMapper.INSTANCE.companyFromRegisterRequest(request);
         User adminUser = new User();
-        adminUser.setActive(true);
+        adminUser.setStatus(true);
         adminUser.setCompany(company);
         adminUser.setRole(Role.ADMINISTRADOR);
         adminUser.setIdentification(company.getRuc());
         adminUser.setFullName(company.getName().concat("_admin"));
-        adminUser.setUsername(company.getName().concat("_admin"));
         adminUser.setPassword(passwordEncoder.encode("admin"));
         adminUser.setTelephone(company.getPhone());
         adminUser.setEmail(company.getEmail());
         company.addUser(adminUser);
         Company companyFromDB = companyRepository.save(company);
         String schemaName = companyFromDB.getName();
-
         Flyway flyway = Flyway.configure()
                 .baselineOnMigrate(true)
                 .dataSource(jdbcTemplate.getDataSource())
@@ -77,8 +77,10 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(()-> new RuntimeException("User not found"));
-        return UserMapper.INSTANCE.userPrincipalFromUser(user);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
+        UserPrincipal userPrincipal = UserMapper.INSTANCE.userPrincipalFromUser(user);
+        userPrincipal.setAuthorities(UserMapper.INSTANCE.mapRolesToAuthorities(user.getRole()));
+        return userPrincipal;
     }
 }

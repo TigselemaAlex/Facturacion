@@ -23,7 +23,7 @@ public class JWTProvider {
                 .compact();
     }
 
-    public String getUsernameFromJWT(String jwt){
+    public String getEmailFromJWT(String jwt){
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secret)
                 .build()
