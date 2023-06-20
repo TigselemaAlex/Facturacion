@@ -3,7 +3,7 @@ package com.capibaracode.backend.infraestructure.services;
 import com.capibaracode.backend.api.models.requests.CategoryRequest;
 import com.capibaracode.backend.api.models.responses.CategoryResponse;
 import com.capibaracode.backend.common.CustomAPIResponse;
-import com.capibaracode.backend.common.ResponseBuilder;
+import com.capibaracode.backend.common.CustomResponseBuilder;
 import com.capibaracode.backend.domain.entities.Category;
 import com.capibaracode.backend.domain.entities.Promotion;
 import com.capibaracode.backend.domain.entities.Tax;
@@ -28,10 +28,10 @@ public class CategoryServiceImpl implements ICategoryService {
     private final CategoryRepository categoryRepository;
     private final PromotionRepository promotionRepository;
     private final TaxRepository taxRepository;
-    private final ResponseBuilder responseBuilder;
+    private final CustomResponseBuilder responseBuilder;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, PromotionRepository promotionRepository, TaxRepository taxRepository, ResponseBuilder responseBuilder) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, PromotionRepository promotionRepository, TaxRepository taxRepository, CustomResponseBuilder responseBuilder) {
         this.categoryRepository = categoryRepository;
         this.promotionRepository = promotionRepository;
         this.taxRepository = taxRepository;
