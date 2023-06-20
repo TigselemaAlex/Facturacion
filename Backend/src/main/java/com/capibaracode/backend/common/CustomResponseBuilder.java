@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ResponseBuilder {
+public class CustomResponseBuilder {
 
     public ResponseEntity<CustomAPIResponse<?>> buildResponse(HttpStatus httpStatus, String message){
         return new CustomAPIResponse.APIResponseBuilder<>(httpStatus, message).build();
