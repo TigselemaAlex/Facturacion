@@ -3,7 +3,7 @@ package com.capibaracode.backend.infraestructure.services;
 
 import com.capibaracode.backend.api.models.requests.RegisterRequest;
 import com.capibaracode.backend.common.CustomAPIResponse;
-import com.capibaracode.backend.common.ResponseBuilder;
+import com.capibaracode.backend.common.CustomResponseBuilder;
 import com.capibaracode.backend.config.security.model.UserPrincipal;
 import com.capibaracode.backend.domain.entities.Company;
 import com.capibaracode.backend.domain.entities.User;
@@ -33,11 +33,11 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ResponseBuilder responseBuilder;
+    private final CustomResponseBuilder responseBuilder;
     private  final IEmailService emailService;
     private final RegisterUtils registerUtils;
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, PasswordEncoder passwordEncoder, ResponseBuilder responseBuilder, IEmailService emailService, RegisterUtils registerUtils) {
+    public UserServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, PasswordEncoder passwordEncoder, CustomResponseBuilder responseBuilder, IEmailService emailService, RegisterUtils registerUtils) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.passwordEncoder = passwordEncoder;

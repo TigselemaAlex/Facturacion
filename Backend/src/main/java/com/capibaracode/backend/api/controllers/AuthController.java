@@ -3,9 +3,8 @@ package com.capibaracode.backend.api.controllers;
 import com.capibaracode.backend.api.models.requests.LoginRequest;
 import com.capibaracode.backend.api.models.requests.RegisterRequest;
 import com.capibaracode.backend.api.models.responses.JWTResponse;
-import com.capibaracode.backend.api.models.responses.UserResponse;
 import com.capibaracode.backend.common.CustomAPIResponse;
-import com.capibaracode.backend.common.ResponseBuilder;
+import com.capibaracode.backend.common.CustomResponseBuilder;
 import com.capibaracode.backend.config.security.jwt.JWTProvider;
 import com.capibaracode.backend.config.security.model.UserPrincipal;
 import com.capibaracode.backend.infraestructure.abstract_services.IUserService;
@@ -29,9 +28,9 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JWTProvider jwtProvider;
     private final IUserService userService;
-    private final ResponseBuilder responseBuilder;
+    private final CustomResponseBuilder responseBuilder;
 
-    public AuthController(AuthenticationManager authenticationManager, JWTProvider jwtProvider, IUserService userService, ResponseBuilder responseBuilder) {
+    public AuthController(AuthenticationManager authenticationManager, JWTProvider jwtProvider, IUserService userService, CustomResponseBuilder responseBuilder) {
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
         this.userService = userService;
