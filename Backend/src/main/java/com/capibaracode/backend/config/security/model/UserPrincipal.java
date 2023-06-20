@@ -1,5 +1,7 @@
 package com.capibaracode.backend.config.security.model;
 
+import com.capibaracode.backend.domain.entities.Company;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,12 +14,21 @@ import java.util.UUID;
 @Setter
 public class UserPrincipal implements UserDetails {
     private UUID id;
-    private String username;
+    private String email;
+    private String fullName;
     private String password;
     private String tenant;
     private Boolean status;
+    private String identification;
+    private String telephone;
+    private Company company;
 
     private Collection<? extends GrantedAuthority> authorities;
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
     @Override
     public boolean isAccountNonExpired() {
