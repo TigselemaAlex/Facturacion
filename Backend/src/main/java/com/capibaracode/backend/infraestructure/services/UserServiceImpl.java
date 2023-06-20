@@ -9,28 +9,22 @@ import com.capibaracode.backend.domain.entities.Company;
 import com.capibaracode.backend.domain.entities.User;
 import com.capibaracode.backend.domain.repositories.CompanyRepository;
 import com.capibaracode.backend.domain.repositories.UserRepository;
+import com.capibaracode.backend.infraestructure.abstract_services.IEmailService;
 import com.capibaracode.backend.infraestructure.abstract_services.IUserService;
+import com.capibaracode.backend.util.Email.EmailDetails;
+import com.capibaracode.backend.util.RegisterUtils;
 import com.capibaracode.backend.util.enums.Role;
 import com.capibaracode.backend.util.mappers.CompanyMapper;
 import com.capibaracode.backend.util.mappers.UserMapper;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import jakarta.transaction.Transactional;
-import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -39,19 +33,24 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JdbcTemplate jdbcTemplate;
     private final ResponseBuilder responseBuilder;
+    private  final IEmailService emailService;
+    private final RegisterUtils registerUtils;
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, PasswordEncoder passwordEncoder, JdbcTemplate jdbcTemplate, ResponseBuilder responseBuilder) {
+    public UserServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, PasswordEncoder passwordEncoder, ResponseBuilder responseBuilder, IEmailService emailService, RegisterUtils registerUtils) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jdbcTemplate = jdbcTemplate;
+        this.registerUtils = registerUtils;
         this.responseBuilder = responseBuilder;
+        this.emailService = emailService;
     }
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> register(RegisterRequest request) {
+        if(companyRepository.existsByName(request.getName())){
+            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "Ya existe una compania registrada con ese nombre");
+        }
         Company company = CompanyMapper.INSTANCE.companyFromRegisterRequest(request);
         User adminUser = new User();
         adminUser.setStatus(true);
@@ -59,19 +58,16 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         adminUser.setRole(Role.ADMINISTRADOR);
         adminUser.setIdentification(company.getRuc());
         adminUser.setFullName(company.getName().concat("_admin"));
-        adminUser.setPassword(passwordEncoder.encode("admin"));
+        String password = registerUtils.generatePassword();
+        adminUser.setPassword(passwordEncoder.encode(password));
         adminUser.setTelephone(company.getPhone());
         adminUser.setEmail(company.getEmail());
         company.addUser(adminUser);
         Company companyFromDB = companyRepository.save(company);
-        String schemaName = companyFromDB.getName();
-        Flyway flyway = Flyway.configure()
-                .baselineOnMigrate(true)
-                .dataSource(jdbcTemplate.getDataSource())
-                .schemas(schemaName)
-                .locations("classpath:db/migration")
-                .load();
-        flyway.migrate();
+        String schemaName = companyFromDB.getName().replaceAll("\\s+", "");
+        registerUtils.createSchema(schemaName);
+        emailService.sendSimpleMail(
+                new EmailDetails(adminUser.getEmail(), registerUtils.bodyMessage(password), "Generación de contraseña"));
 
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Compania registrada exitosamente");
     }
@@ -83,4 +79,9 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         userPrincipal.setAuthorities(UserMapper.INSTANCE.mapRolesToAuthorities(user.getRole()));
         return userPrincipal;
     }
+
+
+
+
+
 }

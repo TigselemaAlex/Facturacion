@@ -19,7 +19,7 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "email", source = "email")
-    @Mapping(target = "tenant", source = "user.company.name")
+    @Mapping(target = "tenant", expression = "java(user.getCompany().getName().replaceAll(\"\\\\s+\", \"\"))")
     UserPrincipal userPrincipalFromUser(User user);
 
     default List<SimpleGrantedAuthority> mapRolesToAuthorities(Role rol) {
