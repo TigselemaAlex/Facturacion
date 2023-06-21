@@ -24,6 +24,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableMethodSecurity
 public class SecurityAdapter {
 
+    private static final String[] AUTH_WHITELIST = {
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/public/**",
+            "/doc/**"
+
+    };
 
 
     @Bean
@@ -46,13 +60,18 @@ public class SecurityAdapter {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .headers(headers -> {
-                    headers
-                            .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);}
+                            headers
+                                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
+                        }
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        authorize -> authorize.requestMatchers("/**").permitAll()
+                        authorize -> {
+                            authorize.requestMatchers(AUTH_WHITELIST).permitAll();
+                            authorize.requestMatchers("/protected/**").authenticated();
+                        }
                 )
+
                 .exceptionHandling(
                         httpSecurityExceptionHandlingConfigurer ->
                                 httpSecurityExceptionHandlingConfigurer

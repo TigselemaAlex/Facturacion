@@ -25,24 +25,26 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private TenantIdentifierResolver tenantIdentifierResolver;
 
+    @Autowired
     private UserServiceImpl userService;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = getJWTFromRequest(request);
+            System.out.println(jwt);
             tenantIdentifierResolver.getAnyConnection();
-            System.out.println(tenantIdentifierResolver.getAnyConnection().getSchema());
             if(Objects.nonNull(jwt) && StringUtils.hasText(jwt) && jwtProvider.validateJWT(jwt)){
                 String username = jwtProvider.getEmailFromJWT(jwt);
                 UserPrincipal userDetails = (UserPrincipal) userService.loadUserByUsername(username);
-                tenantIdentifierResolver.setCurrentTenant(userDetails.getTenant());
-                System.out.println(tenantIdentifierResolver.getAnyConnection().getSchema());
+                System.out.println(userDetails.getTenant());
+
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                tenantIdentifierResolver.getConnection(userDetails.getTenant());
             }
         }catch (Exception e){
-            logger.error("Could not set user authentication in security context");
+            logger.error("Could not set user authentication in security context: " +  e.getMessage());
 
         }
         filterChain.doFilter(request, response);
