@@ -5,6 +5,7 @@ import com.capibaracode.backend.domain.entities.Tax;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -21,7 +22,7 @@ public class CategoryRequest {
     @Size(max = 80, message = "El nombre de la categoría no puede tener más de 50 caracteres")
     private String category;
 
-    @NotBlank(message = "El estado de la categoría es obligatorio")
+    @NotNull(message = "El estado de la categoría es obligatorio")
     private Boolean status;
 
     private UUID promotionId;

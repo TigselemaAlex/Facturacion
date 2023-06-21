@@ -36,7 +36,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private final CustomResponseBuilder responseBuilder;
     private  final IEmailService emailService;
     private final RegisterUtils registerUtils;
-    @Autowired
+
     public UserServiceImpl(UserRepository userRepository, CompanyRepository companyRepository, PasswordEncoder passwordEncoder, CustomResponseBuilder responseBuilder, IEmailService emailService, RegisterUtils registerUtils) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
