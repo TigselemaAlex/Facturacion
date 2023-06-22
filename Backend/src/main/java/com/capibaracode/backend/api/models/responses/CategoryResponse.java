@@ -17,6 +17,8 @@ import java.util.UUID;
 
 public class CategoryResponse {
 
+    private UUID id;
+
     private String category;
 
     private Boolean status;
