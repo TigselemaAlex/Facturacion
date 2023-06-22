@@ -65,6 +65,7 @@ public class SecurityAdapter {
                         }
                 )
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors().and()
                 .authorizeHttpRequests(
                         authorize -> {
                             authorize.requestMatchers(AUTH_WHITELIST).permitAll();
