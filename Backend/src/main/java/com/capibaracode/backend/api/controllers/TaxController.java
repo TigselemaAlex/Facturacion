@@ -1,2 +1,50 @@
-package com.capibaracode.backend.api.controllers;public class TaxController {
+package com.capibaracode.backend.api.controllers;
+
+import com.capibaracode.backend.api.models.requests.TaxRequest;
+import com.capibaracode.backend.common.CustomAPIResponse;
+import com.capibaracode.backend.infraestructure.abstract_services.ITaxService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping(value = "/protected/tax")
+@SecurityRequirement(name = "swagger")
+//http://localhost:8090/capy-bills/api/protected/tax
+public class TaxController {
+
+    private final ITaxService taxService;
+
+    public TaxController(ITaxService taxService) {
+        this.taxService = taxService;
+    }
+
+    @PostMapping
+    public ResponseEntity<CustomAPIResponse<?>> save (@Valid @RequestBody final TaxRequest request){
+        return taxService.save(request);
+    }
+
+    @GetMapping
+    public ResponseEntity<CustomAPIResponse<?>> getAll(){
+        return taxService.getAll();
+    }
+
+    @GetMapping(value = "/{tax}")
+    public ResponseEntity<CustomAPIResponse<?>> getByTaxName(@PathVariable final String tax){
+        return taxService.findByNameTax(tax);
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable final UUID id, @Valid @RequestBody final TaxRequest request){
+        return taxService.update(id, request);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> delete(@PathVariable final UUID id){
+        return taxService.delete(id);
+    }
+
 }

@@ -19,7 +19,7 @@ import java.util.UUID;
 public class CategoryRequest {
 
     @NotBlank(message = "El nombre de la categoría es obligatorio")
-    @Size(max = 80, message = "El nombre de la categoría no puede tener más de 50 caracteres")
+    @Size(max = 50, message = "El nombre de la categoría no puede tener más de 50 caracteres")
     private String category;
 
     @NotNull(message = "El estado de la categoría es obligatorio")
