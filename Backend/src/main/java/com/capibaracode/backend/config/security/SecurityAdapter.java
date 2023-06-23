@@ -59,13 +59,14 @@ public class SecurityAdapter {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                //.headers().frameOptions().sameOrigin().and()
                 .headers(headers -> {
                             headers
                                     .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
                         }
                 )
-                .csrf(AbstractHttpConfigurer::disable)
                 .cors().and()
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
                 .authorizeHttpRequests(
                         authorize -> {
                             authorize.requestMatchers(AUTH_WHITELIST).permitAll();
