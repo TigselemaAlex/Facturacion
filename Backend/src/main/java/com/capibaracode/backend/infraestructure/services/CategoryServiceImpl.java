@@ -41,7 +41,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public ResponseEntity<CustomAPIResponse<?>> save(CategoryRequest request) {
         Category category = CategoryMapper.INSTANCE.categoryFromCategoryRequest(request);
-        CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category);
+        CategoryResponse categoryResponse = new CategoryResponse();
         if (request.getPromotionId() != null){
             if (promotionRepository.existsById(request.getPromotionId())){
                 Promotion promotion = promotionRepository.findById(request.getPromotionId()).
@@ -58,8 +58,7 @@ public class CategoryServiceImpl implements ICategoryService {
                 categoryResponse.setTaxId(request.getTaxId());
             }
         }
-
-        categoryRepository.save(category);
+        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(categoryRepository.save(category));
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Categoría agregada exitosamente", categoryResponse);
     }
 
