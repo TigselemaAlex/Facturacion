@@ -2,7 +2,6 @@ package com.capibaracode.backend.api.models.responses;
 
 import com.capibaracode.backend.domain.entities.Promotion;
 import com.capibaracode.backend.domain.entities.Tax;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,7 @@ public class CategoryResponse {
 
     private Boolean status;
 
-    private UUID promotionId;
+    private Promotion promotion;
 
-    private UUID taxId;
+    private Tax tax;
 }

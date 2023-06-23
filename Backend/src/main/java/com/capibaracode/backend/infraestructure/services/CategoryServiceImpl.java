@@ -47,7 +47,6 @@ public class CategoryServiceImpl implements ICategoryService {
                 Promotion promotion = promotionRepository.findById(request.getPromotionId()).
                         orElseThrow(()-> new RuntimeException("La promocion con id " + request.getPromotionId() + " no existe."));
                 category.setPromotion(promotion);
-                categoryResponse.setPromotionId(request.getPromotionId());
             }
         }
         if (request.getTaxId() != null){
@@ -55,10 +54,10 @@ public class CategoryServiceImpl implements ICategoryService {
                 Tax tax = taxRepository.findById(request.getTaxId()).
                         orElseThrow(()-> new RuntimeException("El impuesto con id " + request.getTaxId()+ " no existe."));
                 category.setTax(tax);
-                categoryResponse.setTaxId(request.getTaxId());
             }
         }
         categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(categoryRepository.save(category));
+
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Categoría agregada exitosamente", categoryResponse);
     }
 
@@ -74,7 +73,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, CategoryRequest request) {
         Category categoryToEdit = categoryRepository.findById(id).orElseThrow(()-> new RuntimeException("La categoria con id " + id + "no existe."));
-        CategoryResponse categoryResponse = null;
+        CategoryResponse categoryResponse = new CategoryResponse();
         categoryToEdit.setCategory(request.getCategory());
         categoryToEdit.setStatus(request.getStatus());
         if (request.getPromotionId() != null){
@@ -82,7 +81,7 @@ public class CategoryServiceImpl implements ICategoryService {
                 Promotion promotion = promotionRepository.findById(request.getPromotionId()).
                         orElseThrow(()-> new RuntimeException("La promocion con id " + request.getPromotionId() + " no existe."));
                 categoryToEdit.setPromotion(promotion);
-                categoryResponse.setPromotionId(request.getPromotionId());
+
             }
         }
         if (request.getTaxId() != null){
@@ -90,11 +89,10 @@ public class CategoryServiceImpl implements ICategoryService {
                 Tax tax = taxRepository.findById(request.getTaxId()).
                         orElseThrow(()-> new RuntimeException("El impuesto con id " + request.getTaxId()+ " no existe."));
                 categoryToEdit.setTax(tax);
-                categoryResponse.setTaxId(request.getTaxId());
+
             }
         }
-
-        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(categoryToEdit);
+        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(categoryRepository.save(categoryToEdit));
         return responseBuilder.buildResponse(HttpStatus.OK, "Categoria actualizada exitosamente", categoryResponse);
     }
 
