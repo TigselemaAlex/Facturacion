@@ -16,15 +16,20 @@ import java.sql.SQLException;
 import java.util.Map;
 
 @Component
-public class TenantIdentifierResolver implements MultiTenantConnectionProvider, HibernatePropertiesCustomizer, CurrentTenantIdentifierResolver {
+public class TenantIdentifierResolver implements
+         HibernatePropertiesCustomizer, CurrentTenantIdentifierResolver {
     private static final Logger logger = LoggerFactory.getLogger(TenantIdentifierResolver.class);
-    private String currentTenant= "public";
+    private String currentTenant= "unknown";
 
-    @Autowired
+
+    public void setCurrentTenant(String tenant) {
+        currentTenant = tenant;
+    }
+    /*@Autowired
     private  DataSource dataSource;
     @Override
     public Connection getAnyConnection() throws SQLException {
-        return dataSource.getConnection();
+        return getConnection("public");
     }
 
     @Override
@@ -35,8 +40,10 @@ public class TenantIdentifierResolver implements MultiTenantConnectionProvider, 
 
     @Override
     public Connection getConnection(String schema) throws SQLException {
-        final Connection connection = getAnyConnection();
+        final Connection connection = dataSource.getConnection();
+        System.out.println("getConnection "+ schema);
         this.currentTenant = schema;
+        connection.setSchema(this.currentTenant);
         try {
             connection.createStatement().execute( "set schema '" + schema+"'" );
             logger.info(connection.getSchema());
@@ -53,13 +60,16 @@ public class TenantIdentifierResolver implements MultiTenantConnectionProvider, 
 
     @Override
     public void releaseConnection(String schema, Connection connection) throws SQLException {
+        System.out.println("releaseConnection ,"+ schema);
+        connection.setSchema(schema);
+        this.currentTenant = "public";
         try {
+
             connection.createStatement().execute( "set schema 'public'" );
             this.currentTenant= "public";
         }
         catch ( SQLException e ) {
-            // on error, throw an exception to make sure the connection is not returned to the pool.
-            // your requirements may differ
+
             throw new HibernateException(
                     "Could not alter JDBC connection to specified schema [" +
                             schema + "]",
@@ -71,7 +81,7 @@ public class TenantIdentifierResolver implements MultiTenantConnectionProvider, 
 
     @Override
     public boolean supportsAggressiveRelease() {
-        return true;
+        return false;
     }
 
 
@@ -83,7 +93,7 @@ public class TenantIdentifierResolver implements MultiTenantConnectionProvider, 
     @Override
     public <T> T unwrap(Class<T> aClass) {
         return null;
-    }
+    }*/
 
     @Override
     public String resolveCurrentTenantIdentifier() {
@@ -92,12 +102,11 @@ public class TenantIdentifierResolver implements MultiTenantConnectionProvider, 
 
     @Override
     public boolean validateExistingCurrentSessions() {
-        return true;
+        return false;
     }
 
     @Override
     public void customize(Map<String, Object> hibernateProperties) {
         hibernateProperties.put(AvailableSettings.MULTI_TENANT_IDENTIFIER_RESOLVER, this);
-        hibernateProperties.put(AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER, this);
     }
 }
