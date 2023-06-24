@@ -22,7 +22,7 @@ public class CategoryResponse {
 
     private Boolean status;
 
-    private Promotion promotion;
+    private PromotionResponse promotion;
 
-    private Tax tax;
+    private TaxResponse tax;
 }
