@@ -32,11 +32,11 @@ public class CategoryController {
     }
 
     @GetMapping(value = "/{category}")
-    public ResponseEntity<CustomAPIResponse<?>> getByCategory(@PathVariable final String category){
+    public ResponseEntity<CustomAPIResponse<?>> getByCategory(@PathVariable final UUID category){
         return categoryService.findByNameCategory(category);
     }
 
-    @PutMapping(value = "/{id}")
+    @PatchMapping(value = "/{id}")
     public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable final UUID id, @Valid @RequestBody final CategoryRequest request){
         return categoryService.update(id, request);
     }

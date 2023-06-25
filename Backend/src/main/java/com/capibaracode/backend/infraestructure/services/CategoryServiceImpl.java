@@ -120,8 +120,8 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> findByNameCategory(String categoryName) {
-        Category category = categoryRepository.findByCategory(categoryName).orElseThrow(()-> new RuntimeException(categoryName+ " no existe"));
+    public ResponseEntity<CustomAPIResponse<?>> findByNameCategory(UUID categoryName) {
+        Category category = categoryRepository.findById(categoryName).orElseThrow(()-> new RuntimeException(categoryName+ " no existe"));
         PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
         TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
         CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
