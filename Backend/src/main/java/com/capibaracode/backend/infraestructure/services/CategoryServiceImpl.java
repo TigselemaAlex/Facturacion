@@ -51,18 +51,18 @@ public class CategoryServiceImpl implements ICategoryService {
         CategoryResponse categoryResponse = new CategoryResponse();
         PromotionResponse promotionResponse = new PromotionResponse();
         TaxResponse taxResponse = new TaxResponse();
-        if (request.getPromotionId() != null){
-            if (promotionRepository.existsById(request.getPromotionId())){
-                Promotion promotion = promotionRepository.findById(request.getPromotionId()).
-                        orElseThrow(()-> new RuntimeException("La promocion con id " + request.getPromotionId() + " no existe."));
+        if (request.getPromotion() != null){
+            if (promotionRepository.existsById(request.getPromotion())){
+                Promotion promotion = promotionRepository.findById(request.getPromotion()).
+                        orElseThrow(()-> new RuntimeException("La promocion con id " + request.getPromotion() + " no existe."));
                 category.setPromotion(promotion);
                 promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(promotion);
             }
         }
-        if (request.getTaxId() != null){
-            if (taxRepository.existsById(request.getTaxId())){
-                Tax tax = taxRepository.findById(request.getTaxId()).
-                        orElseThrow(()-> new RuntimeException("El impuesto con id " + request.getTaxId()+ " no existe."));
+        if (request.getTax() != null){
+            if (taxRepository.existsById(request.getTax())){
+                Tax tax = taxRepository.findById(request.getTax()).
+                        orElseThrow(()-> new RuntimeException("El impuesto con id " + request.getTax()+ " no existe."));
                 category.setTax(tax);
                 taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(tax);
             }
@@ -94,18 +94,18 @@ public class CategoryServiceImpl implements ICategoryService {
         TaxResponse taxResponse = new TaxResponse();
         categoryToEdit.setCategory(request.getCategory());
         categoryToEdit.setStatus(request.getStatus());
-        if (request.getPromotionId() != null){
-            if (promotionRepository.existsById(request.getPromotionId())){
-                Promotion promotion = promotionRepository.findById(request.getPromotionId()).
-                        orElseThrow(()-> new RuntimeException("La promocion con id " + request.getPromotionId() + " no existe."));
+        if (request.getPromotion() != null){
+            if (promotionRepository.existsById(request.getPromotion())){
+                Promotion promotion = promotionRepository.findById(request.getPromotion()).
+                        orElseThrow(()-> new RuntimeException("La promocion con id " + request.getPromotion() + " no existe."));
                 categoryToEdit.setPromotion(promotion);
                 promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(promotion);
             }
         }
-        if (request.getTaxId() != null){
-            if (taxRepository.existsById(request.getTaxId())){
-                Tax tax = taxRepository.findById(request.getTaxId()).
-                        orElseThrow(()-> new RuntimeException("El impuesto con id " + request.getTaxId()+ " no existe."));
+        if (request.getTax() != null){
+            if (taxRepository.existsById(request.getTax())){
+                Tax tax = taxRepository.findById(request.getTax()).
+                        orElseThrow(()-> new RuntimeException("El impuesto con id " + request.getTax()+ " no existe."));
                 categoryToEdit.setTax(tax);
                 taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(tax);
             }
