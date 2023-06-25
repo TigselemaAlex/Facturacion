@@ -25,8 +25,8 @@ public class CategoryRequest {
     @NotNull(message = "El estado de la categoría es obligatorio")
     private Boolean status;
 
-    private UUID promotionId;
+    private UUID promotion;
 
-    private UUID taxId;
+    private UUID tax;
 
 }
