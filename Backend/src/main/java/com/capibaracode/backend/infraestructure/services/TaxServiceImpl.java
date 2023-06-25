@@ -51,15 +51,15 @@ public class TaxServiceImpl implements ITaxService {
         taxToEdit.setTax(request.getTax());
         taxToEdit.setPercentage(request.getPercentage());
         taxToEdit.setStatus(request.getStatus());
-        TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(taxToEdit);
+        TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(taxRepository.save(taxToEdit));
         return responseBuilder.buildResponse(HttpStatus.OK, "Impuesto actualizado exitosamente.", taxResponse);
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> findByNameTax(String taxName) {
-        Tax tax = taxRepository.findByTax(taxName).orElseThrow(()-> new RuntimeException(taxName + " no existe."));
+    public ResponseEntity<CustomAPIResponse<?>> findByID(UUID id) {
+        Tax tax = taxRepository.findById(id).orElseThrow(()-> new RuntimeException("El impuesto con id " + id + " no existe."));
         TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(tax);
-        return responseBuilder.buildResponse(HttpStatus.OK,"Impuesto encontrado exitosamente.", taxResponse);
+        return responseBuilder.buildResponse(HttpStatus.OK, "Impuesto encontrado exitosamente.", taxResponse);
     }
 
     @Override

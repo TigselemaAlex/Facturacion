@@ -11,7 +11,7 @@ public interface IPromotionService {
     ResponseEntity<CustomAPIResponse<?>> save(PromotionRequest request);
     ResponseEntity<CustomAPIResponse<?>> getAll();
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, PromotionRequest request);
-    ResponseEntity<CustomAPIResponse<?>> findByDescriptionName(String description);
+    ResponseEntity<CustomAPIResponse<?>> findByID(UUID id);
     ResponseEntity<CustomAPIResponse<?>> delete(UUID id);
 
 

@@ -55,8 +55,8 @@ public class PromotionServiceImpl implements IPromotionService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> findByDescriptionName(String description) {
-        Promotion promotion = promotionRepository.findByDescription(description).orElseThrow(()-> new RuntimeException(description + " no existe."));
+    public ResponseEntity<CustomAPIResponse<?>> findByID(UUID id) {
+        Promotion promotion = promotionRepository.findById(id).orElseThrow(()-> new RuntimeException("La promoción con id " + id + " no existe."));
         PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(promotion);
         return responseBuilder.buildResponse(HttpStatus.OK, "Promoción encontrada.", promotionResponse);
     }
