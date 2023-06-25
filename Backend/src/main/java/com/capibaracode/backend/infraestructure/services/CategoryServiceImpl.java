@@ -88,7 +88,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, CategoryRequest request) {
 
-        Category categoryToEdit = categoryRepository.findById(id).orElseThrow(()-> new RuntimeException("La categoria con id " + id + "no existe."));
+        Category categoryToEdit = categoryRepository.findById(id).orElseThrow(()-> new RuntimeException("La categoria con id " + id + " no existe."));
         CategoryResponse categoryResponse = new CategoryResponse();
         PromotionResponse promotionResponse = new PromotionResponse();
         TaxResponse taxResponse = new TaxResponse();
@@ -120,8 +120,8 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> findByNameCategory(String categoryName) {
-        Category category = categoryRepository.findByCategory(categoryName).orElseThrow(()-> new RuntimeException(categoryName+ " no existe"));
+    public ResponseEntity<CustomAPIResponse<?>> findByID(UUID id) {
+        Category category = categoryRepository.findById(id).orElseThrow(()-> new RuntimeException("La categoría con id " + id + " no existe."));
         PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
         TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
         CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);

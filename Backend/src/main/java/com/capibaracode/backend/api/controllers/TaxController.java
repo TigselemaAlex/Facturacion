@@ -32,12 +32,12 @@ public class TaxController {
         return taxService.getAll();
     }
 
-    @GetMapping(value = "/{tax}")
-    public ResponseEntity<CustomAPIResponse<?>> getByTaxName(@PathVariable final String tax){
-        return taxService.findByNameTax(tax);
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> getByID(@PathVariable final UUID id){
+        return taxService.findByID(id);
     }
 
-    @PutMapping(value = "/{id}")
+    @PatchMapping(value = "/{id}")
     public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable final UUID id, @Valid @RequestBody final TaxRequest request){
         return taxService.update(id, request);
     }

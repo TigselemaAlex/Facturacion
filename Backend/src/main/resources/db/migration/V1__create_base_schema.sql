@@ -88,7 +88,9 @@ create table supplier
     email          varchar(255),
     identification varchar(255),
     name           varchar(255),
-    telephone      varchar(255)
+    telephone      varchar(255),
+    address        varchar(255),
+    status      boolean
 );
 
 

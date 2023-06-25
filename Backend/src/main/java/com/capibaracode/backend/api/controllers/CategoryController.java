@@ -31,12 +31,12 @@ public class CategoryController {
         return categoryService.getAll();
     }
 
-    @GetMapping(value = "/{category}")
-    public ResponseEntity<CustomAPIResponse<?>> getByCategory(@PathVariable final String category){
-        return categoryService.findByNameCategory(category);
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> getByID(@PathVariable final UUID id){
+        return categoryService.findByID(id);
     }
 
-    @PutMapping(value = "/{id}")
+    @PatchMapping(value = "/{id}")
     public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable final UUID id, @Valid @RequestBody final CategoryRequest request){
         return categoryService.update(id, request);
     }

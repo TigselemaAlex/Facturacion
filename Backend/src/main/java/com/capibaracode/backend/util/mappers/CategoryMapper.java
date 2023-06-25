@@ -14,7 +14,6 @@ public interface CategoryMapper {
 
     CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
 
-
     @Mapping(target = "promotion", ignore = true)
     @Mapping(target = "tax", ignore = true)
     Category categoryFromCategoryRequest(CategoryRequest request);

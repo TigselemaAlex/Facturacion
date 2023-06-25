@@ -32,12 +32,12 @@ public class PromotionController {
         return promotionService.getAll();
     }
 
-    @GetMapping(value = "/{description}")
-    public ResponseEntity<CustomAPIResponse<?>> getByDescription(@PathVariable final String description){
-        return promotionService.findByDescriptionName(description);
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> getByDescription(@PathVariable final UUID id){
+        return promotionService.findByID(id);
     }
 
-    @PutMapping(value = "/{id}")
+    @PatchMapping(value = "/{id}")
     public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable final UUID id, @Valid @RequestBody final PromotionRequest request){
         return promotionService.update(id, request);
     }
