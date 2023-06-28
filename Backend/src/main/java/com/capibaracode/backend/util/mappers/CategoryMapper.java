@@ -24,4 +24,6 @@ public interface CategoryMapper {
     @Mapping(target = "status", source = "category.status")
     CategoryResponse categoryResponseFromCategory(Category category, PromotionResponse promotion, TaxResponse tax);
 
+
+
 }
