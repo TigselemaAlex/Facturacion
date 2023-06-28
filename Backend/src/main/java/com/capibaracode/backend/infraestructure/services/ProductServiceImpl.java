@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -56,14 +57,14 @@ public class ProductServiceImpl implements IProductService {
             return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El producto con código \'"+ request.getCode()+"\' ya existe.");
         }
         Product product = ProductMapper.INSTANCE.productFromProductRequest(request);
-        CategoryResponse categoryResponse = new CategoryResponse();
+        CategoryResponse categoryResponse = null;
         if (request.getCategory() != null){
             if (categoryRepository.existsById(request.getCategory())){
                 Category category = categoryRepository.findById(request.getCategory()).
                         orElseThrow(()-> new RuntimeException("La categoría con id " + request.getCategory() + " no existe."));
                 product.setCategory(category);
-                PromotionResponse promotionResponse = new PromotionResponse();
-                TaxResponse taxResponse = new TaxResponse();
+                PromotionResponse promotionResponse = null;
+                TaxResponse taxResponse = null;
                 if (category.getPromotion() != null){
                     promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
                 }
@@ -91,11 +92,6 @@ public class ProductServiceImpl implements IProductService {
         }
         PromotionResponse promotionResponseFromProduct = PromotionMapper.INSTANCE.promotionResponseFromPromotion(product.getPromotion());
         TaxResponse taxResponseFromProduct = TaxMapper.INSTANCE.taxResponseFromTax(product.getTax());
-        if (promotionResponseFromProduct == null){
-            promotionResponseFromProduct = new PromotionResponse();
-        } if(taxResponseFromProduct == null){
-            taxResponseFromProduct = new TaxResponse();
-        }
         ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(productRepository.save(product), categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Producto agregado exitosamente.", productResponse);
     }
@@ -107,18 +103,15 @@ public class ProductServiceImpl implements IProductService {
                 map(product -> {
                     PromotionResponse promotionResponseFromProduct = PromotionMapper.INSTANCE.promotionResponseFromPromotion(product.getPromotion());
                     TaxResponse taxResponseFromProduct = TaxMapper.INSTANCE.taxResponseFromTax(product.getTax());
-                    if (promotionResponseFromProduct == null){
-                        promotionResponseFromProduct = new PromotionResponse();
-                    } if(taxResponseFromProduct == null){
-                        taxResponseFromProduct = new TaxResponse();
-                    }
                     Category category = product.getCategory();
-                    if(category == null){
-                        category = getCategoryEmpty();
+                    CategoryResponse categoryResponse;
+                    if(category != null){
+                        PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
+                        TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
+                        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
+                    }else{
+                        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, null, null);
                     }
-                    PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
-                    TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
-                    CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
                     return ProductMapper.INSTANCE.productResponseFromProduct(product, categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
                 }).toList();
         return responseBuilder.buildResponse(HttpStatus.OK, "Lista de Productos.", productResponseList);
@@ -135,9 +128,25 @@ public class ProductServiceImpl implements IProductService {
         productToEdit.setStatus(request.getStatus());
         productToEdit.setMinStock(request.getMinStock());
         productToEdit.setMaxStock(request.getMaxStock());
-        PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(productToEdit.getCategory().getPromotion());
-        TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(productToEdit.getCategory().getTax());
-        CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(productToEdit.getCategory(), promotionResponse, taxResponse);
+        CategoryResponse categoryResponse = null;
+        if (request.getCategory() != null){
+            if (categoryRepository.existsById(request.getCategory())){
+                Category category = categoryRepository.findById(request.getCategory()).
+                        orElseThrow(()-> new RuntimeException("La categoría con id " + request.getCategory() + " no existe."));
+                productToEdit.setCategory(category);
+                PromotionResponse promotionResponse = null;
+                TaxResponse taxResponse = null;
+                if (category.getPromotion() != null){
+                    promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
+                }
+                if (category.getTax() != null){
+                    taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
+                }
+                categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
+            }
+        }else{
+            productToEdit.setCategory(null);
+        }
         if(request.getPromotion() != null){
             if(promotionRepository.existsById(request.getPromotion())){
                 Promotion promotion = promotionRepository.findById(request.getPromotion()).orElseThrow(()-> new RuntimeException("La promoción con id " + id + " no existe."));
@@ -156,11 +165,6 @@ public class ProductServiceImpl implements IProductService {
         }
         PromotionResponse promotionResponseFromProduct = PromotionMapper.INSTANCE.promotionResponseFromPromotion(productToEdit.getPromotion());
         TaxResponse taxResponseFromProduct = TaxMapper.INSTANCE.taxResponseFromTax(productToEdit.getTax());
-        if (promotionResponseFromProduct == null){
-            promotionResponseFromProduct = new PromotionResponse();
-        } if(taxResponseFromProduct == null){
-            taxResponseFromProduct = new TaxResponse();
-        }
         ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(productRepository.save(productToEdit), categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
         return responseBuilder.buildResponse(HttpStatus.OK, "Producto actualizado exitosamente.", productResponse);
     }
@@ -170,18 +174,15 @@ public class ProductServiceImpl implements IProductService {
         Product product = productRepository.findById(id).orElseThrow(()-> new RuntimeException("El producto con id " + id + " no existe."));
         PromotionResponse promotionResponseFromProduct = PromotionMapper.INSTANCE.promotionResponseFromPromotion(product.getPromotion());
         TaxResponse taxResponseFromProduct = TaxMapper.INSTANCE.taxResponseFromTax(product.getTax());
-        if (promotionResponseFromProduct == null){
-            promotionResponseFromProduct = new PromotionResponse();
-        } if(taxResponseFromProduct == null){
-            taxResponseFromProduct = new TaxResponse();
-        }
         Category category = product.getCategory();
-        if(category == null){
-            category = getCategoryEmpty();
+        CategoryResponse categoryResponse;
+        if(category != null){
+            PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
+            TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
+            categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
+        }else{
+            categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, null, null);
         }
-        PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
-        TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
-        CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
         ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(product, categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
         return responseBuilder.buildResponse(HttpStatus.OK, "Producto encontrado exitosamente.", productResponse);
     }
