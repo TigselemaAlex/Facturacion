@@ -17,12 +17,26 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(nullable = false, length = 10)
     private String code;
+
+    @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(nullable = false)
     private Double price;
+
+    @Column(nullable = false)
     private Double quantity;
+
+    @Column(nullable = false)
     private Boolean status;
-    private Integer minStocK;
+
+    @Column(nullable = false)
+    private Integer minStock;
+
+    @Column(nullable = false)
     private Integer maxStock;
 
     @ManyToOne
