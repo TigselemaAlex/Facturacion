@@ -113,6 +113,9 @@ public class ProductServiceImpl implements IProductService {
                         taxResponseFromProduct = new TaxResponse();
                     }
                     Category category = product.getCategory();
+                    if(category == null){
+                        category = getCategoryEmpty();
+                    }
                     PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
                     TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
                     CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
@@ -173,6 +176,9 @@ public class ProductServiceImpl implements IProductService {
             taxResponseFromProduct = new TaxResponse();
         }
         Category category = product.getCategory();
+        if(category == null){
+            category = getCategoryEmpty();
+        }
         PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
         TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
         CategoryResponse categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
@@ -187,5 +193,14 @@ public class ProductServiceImpl implements IProductService {
             return responseBuilder.buildResponse(HttpStatus.OK, "Producto removido exitosamente.");
         }
         throw  new RuntimeException("El producto con el identificador: " + id + " no se encuentra.");
+    }
+
+    private Category getCategoryEmpty(){
+        Category category = new Category();
+        Promotion promotion = new Promotion();
+        Tax tax = new Tax();
+        category.setPromotion(promotion);
+        category.setTax(tax);
+        return category;
     }
 }
