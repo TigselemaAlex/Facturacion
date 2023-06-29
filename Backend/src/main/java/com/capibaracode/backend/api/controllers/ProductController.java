@@ -41,9 +41,9 @@ public class ProductController {
         return productService.findByID(id);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> delete(@PathVariable final UUID id){
-        return productService.delete(id);
+    @PatchMapping(value = "/change-status/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
+        return productService.changeStatus(id);
     }
 
 }

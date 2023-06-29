@@ -41,9 +41,9 @@ public class CategoryController {
         return categoryService.update(id, request);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> delete(@PathVariable final UUID id){
-        return categoryService.delete(id);
+    @PatchMapping(value = "/change-status/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
+        return categoryService.changeStatus(id);
     }
 
 }
