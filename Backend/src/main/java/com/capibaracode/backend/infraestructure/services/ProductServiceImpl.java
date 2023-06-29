@@ -188,20 +188,19 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> delete(UUID id) {
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
         if (productRepository.existsById(id)){
-            productRepository.deleteById(id);
-            return responseBuilder.buildResponse(HttpStatus.OK, "Producto removido exitosamente.");
+            Product product = productRepository.findById(id).orElseThrow(()-> new RuntimeException("El producto con id " + id + " no existe."));
+            boolean statusValue;
+            if (product.getStatus()){
+                product.setStatus(false);
+            }else{
+                product.setStatus(true);
+            }
+            statusValue = product.getStatus();
+            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
         }
         throw  new RuntimeException("El producto con el identificador: " + id + " no se encuentra.");
     }
 
-    private Category getCategoryEmpty(){
-        Category category = new Category();
-        Promotion promotion = new Promotion();
-        Tax tax = new Tax();
-        category.setPromotion(promotion);
-        category.setTax(tax);
-        return category;
-    }
 }

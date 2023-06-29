@@ -42,9 +42,9 @@ public class TaxController {
         return taxService.update(id, request);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> delete(@PathVariable final UUID id){
-        return taxService.delete(id);
+    @PatchMapping(value = "/change-status/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
+        return taxService.changeStatus(id);
     }
 
 }

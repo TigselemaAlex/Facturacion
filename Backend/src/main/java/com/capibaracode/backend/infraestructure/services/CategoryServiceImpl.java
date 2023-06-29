@@ -129,10 +129,17 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> delete(UUID id) {
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
         if (categoryRepository.existsById(id)) {
-            categoryRepository.deleteById(id);
-            return responseBuilder.buildResponse(HttpStatus.OK, "Categoria removida exitosamente");
+            Category category = categoryRepository.findById(id).orElseThrow(()-> new RuntimeException("La categoria con id " + id + " no existe."));
+            boolean statusValue;
+            if (category.getStatus()){
+                category.setStatus(false);
+            }else{
+                category.setStatus(true);
+            }
+            statusValue = category.getStatus();
+            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
         }
         throw  new RuntimeException("La categoria con el identificador: " + id + " no se encuentra.");
     }

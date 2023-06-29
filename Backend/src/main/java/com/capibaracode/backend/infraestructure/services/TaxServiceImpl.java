@@ -10,6 +10,7 @@ import com.capibaracode.backend.domain.repositories.TaxRepository;
 import com.capibaracode.backend.infraestructure.abstract_services.ITaxService;
 import com.capibaracode.backend.util.mappers.TaxMapper;
 import jakarta.transaction.Transactional;
+import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,10 +64,17 @@ public class TaxServiceImpl implements ITaxService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> delete(UUID id) {
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
         if (taxRepository.existsById(id)) {
-            taxRepository.deleteById(id);
-            return responseBuilder.buildResponse(HttpStatus.OK, "Impuesto removido exitosamente");
+            Tax tax = taxRepository.findById(id).orElseThrow(()-> new RuntimeException("El impuesto con id " + id + " no existe."));
+            boolean statusValue;
+            if (tax.getStatus()){
+                tax.setStatus(false);
+            }else{
+                tax.setStatus(true);
+            }
+            statusValue = tax.getStatus();
+            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
         }
         throw  new RuntimeException("El impuesto con el identificador: " + id + " no se encuentra.");
     }

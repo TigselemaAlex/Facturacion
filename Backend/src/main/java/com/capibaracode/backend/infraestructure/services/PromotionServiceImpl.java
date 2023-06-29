@@ -5,6 +5,7 @@ import com.capibaracode.backend.api.models.responses.PromotionResponse;
 import com.capibaracode.backend.common.CustomAPIResponse;
 import com.capibaracode.backend.common.CustomResponseBuilder;
 import com.capibaracode.backend.domain.entities.Promotion;
+import com.capibaracode.backend.domain.entities.Tax;
 import com.capibaracode.backend.domain.repositories.PromotionRepository;
 import com.capibaracode.backend.infraestructure.abstract_services.IPromotionService;
 import com.capibaracode.backend.util.mappers.PromotionMapper;
@@ -62,10 +63,17 @@ public class PromotionServiceImpl implements IPromotionService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> delete(UUID id) {
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
         if (promotionRepository.existsById(id)) {
-            promotionRepository.deleteById(id);
-            return responseBuilder.buildResponse(HttpStatus.OK, "Promoción removido exitosamente.");
+            Promotion promotion = promotionRepository.findById(id).orElseThrow(()-> new RuntimeException("La promoción con id " + id + " no existe."));
+            boolean statusValue;
+            if (promotion.getStatus()){
+                promotion.setStatus(false);
+            }else{
+                promotion.setStatus(true);
+            }
+            statusValue = promotion.getStatus();
+            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
         }
         throw  new RuntimeException("La promoción con el identificador: " + id + " no se encuentra.");
     }
