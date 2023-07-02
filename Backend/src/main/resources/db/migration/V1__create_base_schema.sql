@@ -15,7 +15,8 @@ create table payment
 (
     id      uuid not null
         primary key,
-    payment varchar(255)
+    payment varchar(255),
+    status      boolean
 );
 
 
@@ -104,6 +105,7 @@ create table purchase
     purchase_number       varchar(255),
     subtotal_excludingiva numeric(38, 2),
     total                 numeric(38, 2),
+    status                boolean,
     payment_id            uuid
         constraint fkfx22le0qre4gvfot8v1y13bjw
             references payment,
@@ -191,6 +193,7 @@ create table purchase_detail
     discount    double precision,
     quantity    integer,
     subtotal    numeric(38, 2),
+    status      boolean,
     product_id  uuid
         constraint fk79a6tsn4e9qfillme2u9kr3i2
             references product,

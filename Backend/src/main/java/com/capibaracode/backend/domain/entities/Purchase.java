@@ -18,11 +18,25 @@ public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(nullable = false, length = 30)
     private String purchaseNumber;
+
+    @Column(nullable = false)
     private LocalDate purchaseDate;
+
+    @Column(nullable = false)
     private BigDecimal subtotalExcludingIVA;
+
+    @Column(nullable = false)
     private Double iva;
+
+    @Column(nullable = false)
     private BigDecimal total;
+
+    @Column(nullable = false)
+    private Boolean status;
+
     @ManyToOne
     private Supplier supplier;
     @ManyToOne

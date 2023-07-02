@@ -50,8 +50,9 @@ public class PurchaseDetailServiceImpl implements IPurchaseDetailService {
     public ResponseEntity<CustomAPIResponse<?>> save(PurchaseDetailRequest request) {
         PurchaseDetail purchaseDetail = PurchaseDetailMapper.INSTANCE.purchaseDetailFromPurchaseDetailRequest(request);
         ProductResponse productResponse = null;
+        Product product;
         if (productRepository.existsById(request.getProduct())){
-            Product product = productRepository.findById(request.getProduct()).orElseThrow(()-> new RuntimeException("El producto con id "+ request.getProduct()+ " no existe."));
+            product = productRepository.findById(request.getProduct()).orElseThrow(()-> new RuntimeException("El producto con id "+ request.getProduct()+ " no existe."));
             purchaseDetail.setProduct(product);//chevere
             CategoryResponse categoryResponse = null;
             if (product.getCategory() != null){
@@ -73,10 +74,12 @@ public class PurchaseDetailServiceImpl implements IPurchaseDetailService {
         if (purchaseRepository.existsById(request.getPurchase())){
             Purchase purchase = purchaseRepository.findById(request.getPurchase()).orElseThrow(()-> new RuntimeException("La compra con id "+ request.getPurchase()+ " no existe."));
             purchaseDetail.setPurchase(purchase);
+            if (detailRepository.existsByProductAndPurchase(product, purchase))
+                return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El producto con nombre \'"+ product.getName()+"\' no puede estar mas de una vez en el mismo detalle compra.");
         }else{
             return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La compra con id "+ request.getPurchase()+ " no existe.");
         }
-        PurchaseDetailResponse detailResponse = PurchaseDetailMapper.INSTANCE.purchaseDetailResponseFromPurchaseDetail(purchaseDetail, productResponse);
+        PurchaseDetailResponse detailResponse = PurchaseDetailMapper.INSTANCE.purchaseDetailResponseFromPurchaseDetail(detailRepository.save(purchaseDetail), productResponse);
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Detalle de compra agregado exitosamente.", detailResponse);
     }
 
