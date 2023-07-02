@@ -19,16 +19,15 @@ public class PurchaseDetail {
     private UUID id;
 
     @Column(nullable = false)
-    @Min(value = 0, message = "")
+    @Min(value = 0, message = "El valor no puede ser menor a 0.")
     private Integer quantity;
 
     @Column(nullable = false)
-    private String code;
-
-    @Column(nullable = false)
+    @Min(value = 0, message = "El valor no puede ser menor a 0.")
     private Double discount;
 
     @Column(nullable = false)
+    @Min(value = 0, message = "El valor no puede ser menor a 0.")
     private BigDecimal subtotal;
 
     @ManyToOne

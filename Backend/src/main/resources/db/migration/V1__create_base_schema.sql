@@ -188,7 +188,6 @@ create table purchase_detail
 (
     id          uuid not null
         primary key,
-    code        varchar(255),
     discount    double precision,
     quantity    integer,
     subtotal    numeric(38, 2),
