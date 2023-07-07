@@ -1,10 +1,12 @@
 package com.capibaracode.backend.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +45,26 @@ public class Purchase {
     private Payment payment;
     @ManyToOne
     private User user;
-    @OneToMany (mappedBy = "purchase")
-    private List<PurchaseDetail> details;
+
+    //@JsonManagedReference
+    @OneToMany (cascade = CascadeType.ALL)
+    @JoinColumn(name = "purchase_id", referencedColumnName = "id")
+    private List<PurchaseDetail> details = new ArrayList<>();
+
+    public void setNewList(List<PurchaseDetail> newDetails){
+        this.details = newDetails;
+    }
+
+    public void addPurchaseDetail(PurchaseDetail purchaseDetail) {
+        if (purchaseDetail != null) {
+            if (details == null) { details = new ArrayList<>(); }
+            details.add(purchaseDetail);
+        }
+    }
+
+    @PrePersist
+    public void prePersist(){
+        this.purchaseDate = LocalDate.now();
+    }
+
 }

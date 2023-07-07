@@ -41,9 +41,4 @@ public class SupplierController {
         return supplierService.getByID(id);
     }
 
-    @PatchMapping(value = "/change-status/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
-        return supplierService.changeStatus(id);
-    }
-
 }

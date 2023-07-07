@@ -41,9 +41,4 @@ public class PaymentController {
         return paymentService.getByID(id);
     }
 
-    @PatchMapping(value = "/change-status/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
-        return paymentService.changeStatus(id);
-    }
-
 }

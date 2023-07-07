@@ -11,6 +11,6 @@ public interface IPurchaseService {
     public ResponseEntity<CustomAPIResponse<?>> save(PurchaseRequest request);
     public ResponseEntity<CustomAPIResponse<?>> getAll();
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, PurchaseRequest request);
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id);
+    public ResponseEntity<CustomAPIResponse<?>> getByID(UUID id);
 
 }

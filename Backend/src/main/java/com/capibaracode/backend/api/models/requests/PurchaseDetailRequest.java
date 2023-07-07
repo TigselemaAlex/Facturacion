@@ -19,6 +19,8 @@ import java.util.UUID;
 @ToString
 public class PurchaseDetailRequest {
 
+    private UUID id;
+
     @NotNull(message = "La cantidad es obligatorio.")
     @Min(value = 0, message = "La cantidad no puede ser menor a 0.")
     private Integer quantity;
@@ -31,10 +33,12 @@ public class PurchaseDetailRequest {
     @Min(value = 0, message = "El subtotal no puede ser menor a 0.")
     private BigDecimal subtotal;
 
+    @NotNull(message = "El estado es obligatorio.")
+    private Boolean status;
+
     @NotBlank(message = "El id del producto es obligatorio.")
     private UUID product;
 
-    @NotBlank(message = "El id de la compra es obligatorio.")
     private UUID purchase;
 
 }

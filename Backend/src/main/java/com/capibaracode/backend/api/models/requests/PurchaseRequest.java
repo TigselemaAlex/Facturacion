@@ -26,9 +26,6 @@ public class PurchaseRequest {
     @NotBlank(message = "El numero de compra es obligatorio.")
     private String purchaseNumber;
 
-    @NotBlank(message = "La fecha es obligatorio.")
-    private LocalDate purchaseDate;
-
     @NotNull(message = "El Subtotal sin IVA es obligatorio.")
     private BigDecimal subtotalExcludingIVA;
 
@@ -38,7 +35,7 @@ public class PurchaseRequest {
     @NotNull(message = "El Total es obligatorio.")
     private BigDecimal total;
 
-    @NotNull(message = "El Total es obligatorio.")
+    @NotNull(message = "El estado es obligatorio.")
     private Boolean status;
 
     @NotNull(message = "El nombre de proveedor es obligatorio.")
@@ -51,6 +48,6 @@ public class PurchaseRequest {
     private UUID user;
 
     @NotNull(message = "La lista detallada de compra es obligatorio.")
-    private List<PurchaseDetail> details;
+    private List<PurchaseDetailRequest> details;
 
 }

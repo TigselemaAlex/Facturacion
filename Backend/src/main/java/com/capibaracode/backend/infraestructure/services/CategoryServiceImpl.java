@@ -87,11 +87,14 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, CategoryRequest request) {
-
         Category categoryToEdit = categoryRepository.findById(id).orElseThrow(()-> new RuntimeException("La categoria con id " + id + " no existe."));
+        boolean categoryExists = categoryRepository.existsByCategoryAndIdNot(request.getCategory(), id);
+        if (categoryExists){
+            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La categoría con nombre \'"+ request.getCategory()+"\' ya existe.");
+        }
         CategoryResponse categoryResponse = new CategoryResponse();
-        PromotionResponse promotionResponse = new PromotionResponse();
-        TaxResponse taxResponse = new TaxResponse();
+        PromotionResponse promotionResponse = null;
+        TaxResponse taxResponse = null;
         categoryToEdit.setCategory(request.getCategory());
         categoryToEdit.setStatus(request.getStatus());
         if (request.getPromotion() != null){
@@ -101,6 +104,8 @@ public class CategoryServiceImpl implements ICategoryService {
                 categoryToEdit.setPromotion(promotion);
                 promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(promotion);
             }
+        }else{
+            categoryToEdit.setPromotion(null);
         }
         if (request.getTax() != null){
             if (taxRepository.existsById(request.getTax())){
@@ -109,11 +114,10 @@ public class CategoryServiceImpl implements ICategoryService {
                 categoryToEdit.setTax(tax);
                 taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(tax);
             }
+        }else{
+            categoryToEdit.setTax(null);
         }
-        boolean categoryExists = categoryRepository.existsByCategoryAndIdNot(categoryToEdit.getCategory(), categoryToEdit.getId());
-        if (categoryExists){
-            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La categoría con nombre \'"+ request.getCategory()+"\' ya existe.");
-        }
+
         categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(categoryRepository.save(categoryToEdit), promotionResponse, taxResponse);
 
         return responseBuilder.buildResponse(HttpStatus.OK, "Categoria actualizada exitosamente", categoryResponse);
@@ -128,19 +132,4 @@ public class CategoryServiceImpl implements ICategoryService {
         return responseBuilder.buildResponse(HttpStatus.OK, "Categoría Encontrada", categoryResponse);
     }
 
-    @Override
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
-        if (categoryRepository.existsById(id)) {
-            Category category = categoryRepository.findById(id).orElseThrow(()-> new RuntimeException("La categoria con id " + id + " no existe."));
-            boolean statusValue;
-            if (category.getStatus()){
-                category.setStatus(false);
-            }else{
-                category.setStatus(true);
-            }
-            statusValue = category.getStatus();
-            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
-        }
-        throw  new RuntimeException("La categoria con el identificador: " + id + " no se encuentra.");
-    }
 }

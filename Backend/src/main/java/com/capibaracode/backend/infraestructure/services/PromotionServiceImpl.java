@@ -33,6 +33,7 @@ public class PromotionServiceImpl implements IPromotionService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> save(PromotionRequest request) {
+        if (promotionRepository.existsByDescription(request.getDescription()))return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La promoción con nombre \'"+ request.getDescription()+"\' ya existe.");
         Promotion promotion = PromotionMapper.INSTANCE.promotionFromPromotionRequest(request);
         PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(promotionRepository.save(promotion));
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Promoción agregada exitosamente.", promotionResponse);
@@ -48,6 +49,10 @@ public class PromotionServiceImpl implements IPromotionService {
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, PromotionRequest request) {
         Promotion promotionToEdit = promotionRepository.findById(id).orElseThrow(()-> new RuntimeException("La promoción con id " + id + " no existe."));
+        boolean categoryExists = promotionRepository.existsByDescriptionAndIdNot(request.getDescription(), promotionToEdit.getId());
+        if (categoryExists){
+            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La promoción con nombre \'"+ request.getDescription()+"\' ya existe.");
+        }
         promotionToEdit.setDescription(request.getDescription());
         promotionToEdit.setValue(request.getValue());
         promotionToEdit.setStatus(request.getStatus());
@@ -62,19 +67,4 @@ public class PromotionServiceImpl implements IPromotionService {
         return responseBuilder.buildResponse(HttpStatus.OK, "Promoción encontrada.", promotionResponse);
     }
 
-    @Override
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
-        if (promotionRepository.existsById(id)) {
-            Promotion promotion = promotionRepository.findById(id).orElseThrow(()-> new RuntimeException("La promoción con id " + id + " no existe."));
-            boolean statusValue;
-            if (promotion.getStatus()){
-                promotion.setStatus(false);
-            }else{
-                promotion.setStatus(true);
-            }
-            statusValue = promotion.getStatus();
-            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
-        }
-        throw  new RuntimeException("La promoción con el identificador: " + id + " no se encuentra.");
-    }
 }

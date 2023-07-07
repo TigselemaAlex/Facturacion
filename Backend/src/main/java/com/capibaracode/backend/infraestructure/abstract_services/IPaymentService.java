@@ -13,6 +13,4 @@ public interface IPaymentService {
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, PaymentRequest request);
     ResponseEntity<CustomAPIResponse<?>> getByID(UUID id);
 
-    ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id);
-
 }

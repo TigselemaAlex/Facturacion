@@ -41,9 +41,4 @@ public class ProductController {
         return productService.findByID(id);
     }
 
-    @PatchMapping(value = "/change-status/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
-        return productService.changeStatus(id);
-    }
-
 }

@@ -42,9 +42,4 @@ public class PromotionController {
         return promotionService.update(id, request);
     }
 
-    @PatchMapping(value = "/change-status/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
-        return promotionService.changeStatus(id);
-    }
-
 }

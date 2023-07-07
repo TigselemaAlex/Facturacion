@@ -24,6 +24,8 @@ public class PurchaseDetailResponse {
 
     private BigDecimal subtotal;
 
+    private Boolean status;
+
     private ProductResponse product;
 
     private UUID purchase;

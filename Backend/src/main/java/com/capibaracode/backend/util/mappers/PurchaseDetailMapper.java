@@ -20,6 +20,7 @@ public interface PurchaseDetailMapper {
 
     @Mapping(target = "id", source = "purchaseDetail.id")
     @Mapping(target = "quantity", source = "purchaseDetail.quantity")
+    @Mapping(target = "status", source = "purchaseDetail.status")
     @Mapping(target = "product", source = "product")
     @Mapping(target = "purchase", ignore = true)
     PurchaseDetailResponse purchaseDetailResponseFromPurchaseDetail(PurchaseDetail purchaseDetail, ProductResponse product);

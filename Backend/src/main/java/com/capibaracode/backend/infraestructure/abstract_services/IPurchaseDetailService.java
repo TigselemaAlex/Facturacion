@@ -11,6 +11,7 @@ public interface IPurchaseDetailService {
     ResponseEntity<CustomAPIResponse<?>> save(PurchaseDetailRequest request);
     ResponseEntity<CustomAPIResponse<?>> getAll();
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, PurchaseDetailRequest request);
-    ResponseEntity<CustomAPIResponse<?>> delete(UUID id);
+    ResponseEntity<CustomAPIResponse<?>> getByIdPurchase(UUID id);
+    ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id);
 
 }
