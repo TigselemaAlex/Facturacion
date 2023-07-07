@@ -12,6 +12,5 @@ public interface ITaxService {
     ResponseEntity<CustomAPIResponse<?>> getAll();
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, TaxRequest request);
     ResponseEntity<CustomAPIResponse<?>> findByID(UUID id);
-    ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id);
 
 }

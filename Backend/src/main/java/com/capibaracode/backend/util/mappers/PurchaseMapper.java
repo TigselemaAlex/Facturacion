@@ -2,10 +2,7 @@ package com.capibaracode.backend.util.mappers;
 
 
 import com.capibaracode.backend.api.models.requests.PurchaseRequest;
-import com.capibaracode.backend.api.models.responses.PaymentResponse;
-import com.capibaracode.backend.api.models.responses.PurchaseResponse;
-import com.capibaracode.backend.api.models.responses.SupplierResponse;
-import com.capibaracode.backend.api.models.responses.UserResponse;
+import com.capibaracode.backend.api.models.responses.*;
 import com.capibaracode.backend.domain.entities.Purchase;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +16,7 @@ public interface PurchaseMapper {
     @Mapping(target = "supplier", ignore = true)
     @Mapping(target = "payment", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "details", ignore = true)
     Purchase purchaseFromPurchaseRequest(PurchaseRequest request);
 
     @Mapping(target = "id", source = "purchase.id")
@@ -31,6 +29,6 @@ public interface PurchaseMapper {
     @Mapping(target = "supplier", source = "supplier")
     @Mapping(target = "payment", source = "payment")
     @Mapping(target = "user", source = "user")
-    PurchaseResponse purchaseResponseFromPurchase(Purchase purchase, SupplierResponse supplier, PaymentResponse payment, UserResponse user);
+    PurchaseResponse purchaseResponseFromPurchase(Purchase purchase, SupplierResponse supplier, PaymentResponse payment, UserResponseDTO user);
 
 }

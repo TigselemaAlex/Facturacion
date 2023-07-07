@@ -12,6 +12,5 @@ public interface ICategoryService {
     ResponseEntity<CustomAPIResponse<?>> getAll();
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, CategoryRequest request);
     ResponseEntity<CustomAPIResponse<?>> findByID(UUID id);
-    ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id);
 
 }

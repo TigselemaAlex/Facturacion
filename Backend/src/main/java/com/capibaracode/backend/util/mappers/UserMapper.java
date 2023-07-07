@@ -2,6 +2,7 @@ package com.capibaracode.backend.util.mappers;
 
 import com.capibaracode.backend.api.models.responses.CompanyResponse;
 import com.capibaracode.backend.api.models.responses.UserResponse;
+import com.capibaracode.backend.api.models.responses.UserResponseDTO;
 import com.capibaracode.backend.config.security.model.UserPrincipal;
 import com.capibaracode.backend.domain.entities.User;
 import com.capibaracode.backend.util.enums.Role;
@@ -33,4 +34,14 @@ public interface UserMapper {
     @Mapping(target = "id", source = "userPrincipal.id")
     @Mapping(target = "email", source = "userPrincipal.email")
     UserResponse userResponseFromUserPrincipal(UserPrincipal userPrincipal, CompanyResponse companyResponse);
+
+    @Mapping(target = "id", source = "user.id")
+    @Mapping(target = "status", source = "user.status")
+    @Mapping(target = "fullName", source = "user.fullName")
+    @Mapping(target = "email", source = "user.email")
+    @Mapping(target = "identification", source = "user.identification")
+    @Mapping(target = "telephone", source = "user.telephone")
+    @Mapping(target = "role", source = "user.role")
+    UserResponseDTO userResponseDTOFromUser(User user);
+
 }

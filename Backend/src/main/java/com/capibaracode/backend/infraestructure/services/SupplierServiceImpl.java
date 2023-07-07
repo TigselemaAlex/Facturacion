@@ -68,20 +68,4 @@ public class SupplierServiceImpl implements ISupplierService {
         return responseBuilder.buildResponse(HttpStatus.OK, "Proveedor solicitado, encontrado exitosamente.", supplierResponse);
     }
 
-    @Override
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
-        if (supplierRepository.existsById(id)){
-            Supplier supplier = supplierRepository.findById(id).orElseThrow(()-> new RuntimeException("El proveedor con id " + id + " no existe."));
-            boolean statusValue;
-            if (supplier.getStatus()){
-                supplier.setStatus(false);
-            }else{
-                supplier.setStatus(true);
-            }
-            statusValue = supplier.getStatus();
-            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
-        }
-        throw new RuntimeException("El proveedor con el identificador: " + id + " no se encuentra.");
-    }
-
 }

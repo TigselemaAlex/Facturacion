@@ -63,19 +63,4 @@ public class TaxServiceImpl implements ITaxService {
         return responseBuilder.buildResponse(HttpStatus.OK, "Impuesto encontrado exitosamente.", taxResponse);
     }
 
-    @Override
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
-        if (taxRepository.existsById(id)) {
-            Tax tax = taxRepository.findById(id).orElseThrow(()-> new RuntimeException("El impuesto con id " + id + " no existe."));
-            boolean statusValue;
-            if (tax.getStatus()){
-                tax.setStatus(false);
-            }else{
-                tax.setStatus(true);
-            }
-            statusValue = tax.getStatus();
-            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
-        }
-        throw  new RuntimeException("El impuesto con el identificador: " + id + " no se encuentra.");
-    }
 }

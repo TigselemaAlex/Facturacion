@@ -10,4 +10,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
 
     Optional<Promotion> findByDescription(String description);
 
+    boolean existsByDescription(String descriptionName);
+
+    boolean existsByDescriptionAndIdNot(String newDescriptionName, UUID id);
+
 }

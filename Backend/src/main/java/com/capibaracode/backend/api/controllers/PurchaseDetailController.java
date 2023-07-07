@@ -37,9 +37,14 @@ public class PurchaseDetailController {
         return purchaseDetailService.update(id, request);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<CustomAPIResponse<?>> delete(@PathVariable final UUID id){
-        return purchaseDetailService.delete(id);
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> getByIdPurchase(@PathVariable final UUID id){
+        return purchaseDetailService.getByIdPurchase(id);
+    }
+
+    @PatchMapping(value = "/change-status/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(@PathVariable final UUID id){
+        return purchaseDetailService.changeStatus(id);
     }
 
 }

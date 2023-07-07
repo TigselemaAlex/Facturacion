@@ -38,6 +38,6 @@ public class PurchaseResponse {
 
     private PaymentResponse payment;
 
-    private UserResponse user;
+    private UserResponseDTO user;
 
 }

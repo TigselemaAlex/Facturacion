@@ -53,8 +53,8 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> save(ProductRequest request) {
-        if (productRepository.existsByCode(request.getCode())){
-            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El producto con código \'"+ request.getCode()+"\' ya existe.");
+        if (productRepository.existsByName(request.getName())){
+            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El producto con nombre \'"+ request.getName()+"\' ya existe.");
         }
         Product product = ProductMapper.INSTANCE.productFromProductRequest(request);
         CategoryResponse categoryResponse = null;
@@ -120,9 +120,10 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, ProductRequest request) {
         Product productToEdit = productRepository.findById(id).orElseThrow(()-> new RuntimeException("El producto con id " + id + " no existe."));
+        if (productRepository.existsByNameAndIdNot(request.getName(), productToEdit.getId()))
+            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El producto con nombre \'"+ request.getName()+"\' ya existe.");
         productToEdit.setCode(request.getCode());
-        if (productRepository.existsByCodeAndIdNot(productToEdit.getCode(), productToEdit.getId()))
-            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El producto con código \'"+ request.getCode()+"\' ya existe.");
+        productToEdit.setName(request.getName());
         productToEdit.setQuantity(request.getQuantity());
         productToEdit.setPrice(request.getPrice());
         productToEdit.setStatus(request.getStatus());
@@ -185,22 +186,6 @@ public class ProductServiceImpl implements IProductService {
         }
         ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(product, categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
         return responseBuilder.buildResponse(HttpStatus.OK, "Producto encontrado exitosamente.", productResponse);
-    }
-
-    @Override
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
-        if (productRepository.existsById(id)){
-            Product product = productRepository.findById(id).orElseThrow(()-> new RuntimeException("El producto con id " + id + " no existe."));
-            boolean statusValue;
-            if (product.getStatus()){
-                product.setStatus(false);
-            }else{
-                product.setStatus(true);
-            }
-            statusValue = product.getStatus();
-            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
-        }
-        throw  new RuntimeException("El producto con el identificador: " + id + " no se encuentra.");
     }
 
 }

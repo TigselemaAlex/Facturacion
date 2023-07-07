@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -112,6 +113,8 @@ public class PurchaseDetailServiceImpl implements IPurchaseDetailService {
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, PurchaseDetailRequest request) {
         PurchaseDetail purchaseDetailToEdit = detailRepository.findById(id).orElseThrow(()-> new RuntimeException("El detalle de compra con id " + id + " no existe."));
         purchaseDetailToEdit.setQuantity(request.getQuantity());
+        purchaseDetailToEdit.setSubtotal(request.getSubtotal());
+        purchaseDetailToEdit.setStatus(request.getStatus());
         ProductResponse productResponse = null;
         CategoryResponse categoryResponse = null;
         if (purchaseDetailToEdit.getProduct().getCategory() != null){
@@ -132,10 +135,45 @@ public class PurchaseDetailServiceImpl implements IPurchaseDetailService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> delete(UUID id) {
+    public ResponseEntity<CustomAPIResponse<?>> getByIdPurchase(UUID id) {
+        Purchase purchase = purchaseRepository.findById(id).orElseThrow(()-> new RuntimeException("La compra con id en el detalle de compra: " + id + " no existe."));
+        List<PurchaseDetail> purchaseDetailList = detailRepository.findByPurchase(purchase);
+        List<PurchaseDetailResponse> purchaseDetailResponseList = purchaseDetailList.stream().
+                map(purchaseDetail -> {
+                    ProductResponse productResponse = null;
+                    CategoryResponse categoryResponse = null;
+                    if (purchaseDetail.getProduct().getCategory() != null){
+                        Category category = categoryRepository.findById(purchaseDetail.getProduct().getCategory().getId()).orElseThrow(()-> new RuntimeException("La categoria con id "+ purchaseDetail.getProduct().getCategory().getId()+ " no existe."));
+                        PromotionResponse promotionResponse = null;
+                        TaxResponse taxResponse = null;
+                        if (category.getPromotion() != null){
+                            promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
+                        }
+                        if (category.getTax() != null){
+                            taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
+                        }
+                        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
+                        productResponse = ProductMapper.INSTANCE.productResponseFromProduct(purchaseDetail.getProduct(), categoryResponse, promotionResponse, taxResponse);
+                    }
+                    PurchaseDetailResponse purchaseDetailResponse = PurchaseDetailMapper.INSTANCE.purchaseDetailResponseFromPurchaseDetail(purchaseDetail, productResponse);
+                    purchaseDetailResponse.setPurchase(purchaseDetail.getPurchase().getId());
+                    return purchaseDetailResponse;
+                }).toList();
+        return responseBuilder.buildResponse(HttpStatus.OK, "Lista de Detalle de Compra por Compra.", purchaseDetailResponseList);
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
         if (detailRepository.existsById(id)){
-            detailRepository.deleteById(id);
-            return responseBuilder.buildResponse(HttpStatus.OK, "Detalle de compra removido exitosamente.");
+            PurchaseDetail purchaseDetail = detailRepository.findById(id).orElseThrow(()-> new RuntimeException("El detalle de compra con id " + id + " no existe."));
+            boolean statusValue;
+            if (purchaseDetail.getStatus()){
+                purchaseDetail.setStatus(false);
+            }else{
+                purchaseDetail.setStatus(true);
+            }
+            statusValue = purchaseDetail.getStatus();
+            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
         }
         throw new RuntimeException("El detalle de compra con el identificador: " + id + " no se encuentra.");
     }

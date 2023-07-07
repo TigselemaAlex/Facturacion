@@ -49,9 +49,12 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, PaymentRequest request) {
         Payment paymentToEdit = paymentRepository.findById(id).orElseThrow(()->new RuntimeException("El tipo de pago con id "+id+" no existe."));
+        boolean categoryExists = paymentRepository.existsByPaymentAndIdNot(request.getPayment(), paymentToEdit.getId());
+        if (categoryExists){
+            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El tipo de pago con nombre \'"+ request.getPayment()+"\' ya existe.");
+        }
         paymentToEdit.setPayment(request.getPayment());
-        boolean categoryExists = paymentRepository.existsByPaymentAndIdNot(paymentToEdit.getPayment(), paymentToEdit.getId());
-        if (categoryExists)return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El tipo de pago con nombre \'"+ request.getPayment()+"\' ya existe.");
+        paymentToEdit.setStatus(request.getStatus());
         PaymentResponse paymentResponse = PaymentMapper.INSTANCE.paymentResponseFromPayment(paymentRepository.save(paymentToEdit));
         return responseBuilder.buildResponse(HttpStatus.OK, "Tipo de pago actualizado exitosamente.", paymentResponse);
     }
@@ -66,19 +69,4 @@ public class PaymentServiceImpl implements IPaymentService {
         return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El tipo de pago con id "+id+" no se encuentra.");
     }
 
-    @Override
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
-        if (paymentRepository.existsById(id)) {
-            Payment payment = paymentRepository.findById(id).orElseThrow(()-> new RuntimeException("El tipo de pago con id " + id + " no existe."));
-            boolean statusValue;
-            if (payment.getStatus()){
-                payment.setStatus(false);
-            }else{
-                payment.setStatus(true);
-            }
-            statusValue = payment.getStatus();
-            return responseBuilder.buildResponse(HttpStatus.OK, "Cambio de estado exitosamente.", statusValue);
-        }
-        throw  new RuntimeException("El tipo de pago con el identificador: " + id + " no se encuentra.");
-    }
 }

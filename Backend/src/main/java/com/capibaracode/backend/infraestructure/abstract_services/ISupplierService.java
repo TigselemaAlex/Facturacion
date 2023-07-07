@@ -12,6 +12,5 @@ public interface ISupplierService {
     ResponseEntity<CustomAPIResponse<?>> getAll();
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, SupplierRequest request);
     ResponseEntity<CustomAPIResponse<?>> getByID(UUID id);
-    ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id);
 
 }
