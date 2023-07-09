@@ -1,28 +1,24 @@
-package com.capibaracode.backend.domain.entities;
+package com.capibaracode.backend.api.models.responses;
 
 import com.capibaracode.backend.util.enums.ClientType;
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@ToString
-@Entity
-@AllArgsConstructor
 @NoArgsConstructor
-public class Client {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+@ToString
+public class ClientResponse {
     private UUID id;
     private String identification;
     private String fullname;
     private String telephone;
     private String email;
-    private String address;
     private Boolean active;
-    @Enumerated(EnumType.STRING)
+    private String address;
     private ClientType type;
-
 }

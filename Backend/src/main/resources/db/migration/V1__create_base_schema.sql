@@ -6,7 +6,9 @@ create table client
     fullname       varchar(255),
     identification varchar(255),
     telephone      varchar(255),
-    type           varchar(255)
+    type           varchar(255),
+    active         boolean,
+    address        varchar(255)
 );
 
 
