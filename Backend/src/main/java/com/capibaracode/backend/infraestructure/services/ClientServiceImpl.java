@@ -52,6 +52,12 @@ public class ClientServiceImpl implements IClientService {
     }
 
     @Override
+    public ResponseEntity<CustomAPIResponse<?>> findByIdentification(String identification) {
+        Client client = clientRepository.findByIdentification(identification).orElseThrow( () -> new RuntimeException("No se encontro el cliente con identificacion: " + identification));
+        return customResponseBuilder.buildResponse(HttpStatus.OK, "Cliente encontrado", ClientMapper.INSTANCE.clientToClientResponse(client));
+    }
+
+    @Override
     public ResponseEntity<CustomAPIResponse<?>> save(ClientRequest client) {
         Client clientToSave = ClientMapper.INSTANCE.clientRequestToClient(client);
         ClientResponse response = ClientMapper.INSTANCE.clientToClientResponse(clientRepository.save(clientToSave));
@@ -66,15 +72,11 @@ public class ClientServiceImpl implements IClientService {
         clientToUpdate.setTelephone(client.getTelephone());
         clientToUpdate.setAddress(client.getAddress());
         clientToUpdate.setType(client.getType());
+        clientToUpdate.setActive(client.getActive());
+        clientToUpdate.setIdentification(client.getIdentification());
+        clientToUpdate.setIdentificationType(client.getIdentificationType());
         ClientResponse response = ClientMapper.INSTANCE.clientToClientResponse(clientRepository.save(clientToUpdate));
         return customResponseBuilder.buildResponse(HttpStatus.OK, "Cliente actualizado", response);
     }
 
-    @Override
-    public ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id) {
-        Client clientToUpdate = clientRepository.findById(id).orElseThrow( () -> new RuntimeException("No se encontro el cliente con id: " + id));
-        clientToUpdate.setActive(!clientToUpdate.getActive());
-        clientRepository.save(clientToUpdate);
-        return customResponseBuilder.buildResponse(HttpStatus.OK, "Estado del cliente actualizado");
-    }
 }

@@ -26,10 +26,10 @@ public class User {
     @ColumnDefault("true")
     private Boolean status;
 
-    @Column(nullable = false, length = 80, unique = true)
+    @Column(nullable = false, length = 80)
     private String fullName;
 
-    @Column(nullable = false, length = 180)
+    @Column(nullable = false, length = 180, unique = true)
     private String email;
 
     @Column(nullable = false, unique = true, length = 20)
@@ -44,4 +44,5 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Company company;
+
 }

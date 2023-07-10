@@ -19,81 +19,12 @@ import java.util.Map;
 public class TenantIdentifierResolver implements
          HibernatePropertiesCustomizer, CurrentTenantIdentifierResolver {
     private static final Logger logger = LoggerFactory.getLogger(TenantIdentifierResolver.class);
-    private String currentTenant= "unknown";
+    private String currentTenant= "public";
 
 
     public void setCurrentTenant(String tenant) {
         currentTenant = tenant;
     }
-    /*@Autowired
-    private  DataSource dataSource;
-    @Override
-    public Connection getAnyConnection() throws SQLException {
-        return getConnection("public");
-    }
-
-    @Override
-    public void releaseAnyConnection(Connection connection) throws SQLException {
-        logger.info(connection.getSchema() + " info");
-        connection.close();
-    }
-
-    @Override
-    public Connection getConnection(String schema) throws SQLException {
-        final Connection connection = dataSource.getConnection();
-        System.out.println("getConnection "+ schema);
-        this.currentTenant = schema;
-        connection.setSchema(this.currentTenant);
-        try {
-            connection.createStatement().execute( "set schema '" + schema+"'" );
-            logger.info(connection.getSchema());
-        }
-        catch ( SQLException e ) {
-            throw new HibernateException(
-                    "Could not alter JDBC connection to specified schema [" +
-                            schema + "]" + e.getMessage(),
-                    e
-            );
-        }
-        return connection;
-    }
-
-    @Override
-    public void releaseConnection(String schema, Connection connection) throws SQLException {
-        System.out.println("releaseConnection ,"+ schema);
-        connection.setSchema(schema);
-        this.currentTenant = "public";
-        try {
-
-            connection.createStatement().execute( "set schema 'public'" );
-            this.currentTenant= "public";
-        }
-        catch ( SQLException e ) {
-
-            throw new HibernateException(
-                    "Could not alter JDBC connection to specified schema [" +
-                            schema + "]",
-                    e
-            );
-        }
-        connection.close();
-    }
-
-    @Override
-    public boolean supportsAggressiveRelease() {
-        return false;
-    }
-
-
-    @Override
-    public boolean isUnwrappableAs(Class<?> aClass) {
-        return false;
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> aClass) {
-        return null;
-    }*/
 
     @Override
     public String resolveCurrentTenantIdentifier() {

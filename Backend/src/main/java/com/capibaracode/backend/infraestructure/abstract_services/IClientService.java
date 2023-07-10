@@ -10,8 +10,8 @@ public interface IClientService {
     ResponseEntity<CustomAPIResponse<?>> findAll();
     ResponseEntity<CustomAPIResponse<?>> findAllOnlyActive();
     ResponseEntity<CustomAPIResponse<?>> findById(UUID id);
+    ResponseEntity<CustomAPIResponse<?>> findByIdentification(String identification);
     ResponseEntity<CustomAPIResponse<?>> save(ClientRequest client);
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, ClientRequest client);
-    ResponseEntity<CustomAPIResponse<?>> changeStatus(UUID id);
 
 }

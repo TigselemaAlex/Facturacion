@@ -2,6 +2,7 @@ package com.capibaracode.backend.infraestructure.services;
 
 
 import com.capibaracode.backend.api.models.requests.RegisterRequest;
+import com.capibaracode.backend.api.models.requests.UserRequest;
 import com.capibaracode.backend.common.CustomAPIResponse;
 import com.capibaracode.backend.common.CustomResponseBuilder;
 import com.capibaracode.backend.config.security.model.UserPrincipal;
@@ -25,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -70,6 +73,21 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
                 new EmailDetails(adminUser.getEmail(), registerUtils.bodyMessage(password), "Generación de contraseña"));
 
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Compania registrada exitosamente");
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> updatePassword(UUID companyId, String password) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> update(UUID companyId, UserRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> save(UUID companyId, UserRequest request) {
+        return null;
     }
 
     @Override

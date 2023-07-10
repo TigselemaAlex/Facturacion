@@ -1,14 +1,19 @@
 create table client
 (
-    id             uuid not null
+    id                  uuid not null
         primary key,
-    email          varchar(255),
-    fullname       varchar(255),
-    identification varchar(255),
-    telephone      varchar(255),
-    type           varchar(255),
-    active         boolean,
-    address        varchar(255)
+    active              boolean,
+    address             varchar(255),
+    email               varchar(255)
+        constraint uk_bfgjs3fem0hmjhvih80158x29
+            unique,
+    fullname            varchar(255),
+    identification      varchar(255)
+        constraint uk_powwvjq5dtrded35jufhbmcsd
+            unique,
+    identification_type varchar(255),
+    telephone           varchar(255),
+    type                varchar(255)
 );
 
 
@@ -18,7 +23,7 @@ create table payment
     id      uuid not null
         primary key,
     payment varchar(255),
-    status      boolean
+    status  boolean
 );
 
 
@@ -93,7 +98,7 @@ create table supplier
     name           varchar(255),
     telephone      varchar(255),
     address        varchar(255),
-    status      boolean
+    status         boolean
 );
 
 
