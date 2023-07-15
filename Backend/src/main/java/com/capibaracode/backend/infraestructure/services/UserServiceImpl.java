@@ -18,6 +18,7 @@ import com.capibaracode.backend.util.enums.Role;
 import com.capibaracode.backend.util.mappers.CompanyMapper;
 import com.capibaracode.backend.util.mappers.UserMapper;
 import jakarta.transaction.Transactional;
+import org.aspectj.bridge.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.UUID;
 
 @Service
@@ -76,18 +78,32 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> updatePassword(UUID companyId, String password) {
+    public ResponseEntity<CustomAPIResponse<?>> updatePassword(UUID id, String password) {
+        User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return responseBuilder.buildResponse(HttpStatus.OK, "Contraseña actualizada exitosamente");
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> update(UUID id, UserRequest request) {
         return null;
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> update(UUID companyId, UserRequest request) {
+    public ResponseEntity<CustomAPIResponse<?>> save(UUID id, UserRequest request) {
         return null;
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> save(UUID companyId, UserRequest request) {
-        return null;
+    public ResponseEntity<CustomAPIResponse<?>> recoveryPassword(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        String password = registerUtils.generatePassword();
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        emailService.sendSimpleMail(
+                new EmailDetails(user.getEmail(), MessageFormat.format("Su nueva contraseña es: <strong>{0}</strong>, recuerda cambiarla", password), "Recuperación de contraseña"));
+        return responseBuilder.buildResponse(HttpStatus.OK, "Nueva contraseña enviada al correo exitosamente");
     }
 
     @Override
@@ -97,9 +113,5 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         userPrincipal.setAuthorities(UserMapper.INSTANCE.mapRolesToAuthorities(user.getRole()));
         return userPrincipal;
     }
-
-
-
-
 
 }

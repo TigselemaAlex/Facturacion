@@ -1,6 +1,5 @@
 package com.capibaracode.backend.api.models.requests;
 
-import com.capibaracode.backend.util.enums.ClientType;
 import com.capibaracode.backend.util.enums.IdentificationType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -23,9 +22,7 @@ public class ClientRequest {
     private String email;
     @NotNull(message = "La dirección es obligatoria")
     private String address;
-    private Boolean active;
-    @NotNull(message = "El tipo de cliente es obligatorio")
-    private ClientType type;
+    private Boolean status;
     @NotNull(message = "El tipo de identificación es obligatorio")
     private IdentificationType identificationType;
 }

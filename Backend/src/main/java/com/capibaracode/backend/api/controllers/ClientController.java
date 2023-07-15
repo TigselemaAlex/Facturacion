@@ -40,6 +40,11 @@ public class ClientController {
         return clientService.findByIdentification(identification);
     }
 
+    @GetMapping(value = "/identification")
+    public ResponseEntity<CustomAPIResponse<?>> findAllIdentification(){
+        return clientService.findAllIdentification();
+    }
+
     @PostMapping
     public ResponseEntity<CustomAPIResponse<?>> save(@Valid @RequestBody final ClientRequest request){
         return clientService.save(request);

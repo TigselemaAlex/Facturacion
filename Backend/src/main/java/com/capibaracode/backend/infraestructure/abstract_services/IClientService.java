@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public interface IClientService {
     ResponseEntity<CustomAPIResponse<?>> findAll();
+
+    ResponseEntity<CustomAPIResponse<?>> findAllIdentification();
     ResponseEntity<CustomAPIResponse<?>> findAllOnlyActive();
     ResponseEntity<CustomAPIResponse<?>> findById(UUID id);
     ResponseEntity<CustomAPIResponse<?>> findByIdentification(String identification);
