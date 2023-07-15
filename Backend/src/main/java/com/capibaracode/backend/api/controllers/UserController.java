@@ -24,10 +24,7 @@ public class UserController {
         return userService.updatePassword(id, password);
     }
 
-    @PatchMapping(value = "/recovery/password/{email}")
-    public ResponseEntity<CustomAPIResponse<?>> recoveryPassword(@PathVariable("email") String email){
-        return userService.recoveryPassword(email);
-    }
+
 
 
 }
