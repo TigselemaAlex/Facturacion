@@ -10,10 +10,12 @@ import java.util.UUID;
 public interface IUserService {
      ResponseEntity<CustomAPIResponse<?>> register(RegisterRequest request);
 
-     ResponseEntity<CustomAPIResponse<?>> updatePassword(UUID userId, String password);
+     ResponseEntity<CustomAPIResponse<?>> updatePassword(UUID id, String password);
 
-     ResponseEntity<CustomAPIResponse<?>> update(UUID companyId, UserRequest request);
+     ResponseEntity<CustomAPIResponse<?>> update(UUID id, UserRequest request);
 
-     ResponseEntity<CustomAPIResponse<?>> save(UUID companyId, UserRequest request);
+     ResponseEntity<CustomAPIResponse<?>> save(UUID id, UserRequest request);
+
+     ResponseEntity<CustomAPIResponse<?>> recoveryPassword(String email);
 
 }

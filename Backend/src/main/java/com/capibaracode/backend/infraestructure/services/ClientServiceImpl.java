@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -38,23 +40,34 @@ public class ClientServiceImpl implements IClientService {
     }
 
     @Override
+    public ResponseEntity<CustomAPIResponse<?>> findAllIdentification() {
+        List<String> identifications = clientRepository.findAllIdentification();
+        return customResponseBuilder
+                .buildResponse(HttpStatus.OK, "Listado de todas las identificaciones",identifications);
+    }
+
+    @Override
     public ResponseEntity<CustomAPIResponse<?>> findAllOnlyActive() {
-        List<Client> clients = clientRepository.findAllByActiveTrue();
+        List<Client> clients = clientRepository.findAllByStatusTrue();
         List<ClientResponse> responses = clients.stream().map(ClientMapper.INSTANCE::clientToClientResponse).toList();
         return customResponseBuilder.buildResponse(HttpStatus.OK, "Listado de todos los clientes activos", responses);
     }
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> findById(UUID id) {
-        Client client = clientRepository.findById(id).orElseThrow( () -> new RuntimeException("No se encontro el cliente con id: " + id));
+        Client client = clientRepository.findById(id)
+                .orElseThrow( () -> new RuntimeException("No se encontro el cliente con id: " + id));
         ClientResponse response = ClientMapper.INSTANCE.clientToClientResponse(client);
         return customResponseBuilder.buildResponse(HttpStatus.OK, "Cliente encontrado", response);
     }
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> findByIdentification(String identification) {
-        Client client = clientRepository.findByIdentification(identification).orElseThrow( () -> new RuntimeException("No se encontro el cliente con identificacion: " + identification));
-        return customResponseBuilder.buildResponse(HttpStatus.OK, "Cliente encontrado", ClientMapper.INSTANCE.clientToClientResponse(client));
+        Client client = clientRepository.findByIdentification(identification)
+                .orElseThrow( () -> new RuntimeException("No se encontro el cliente con identificacion: " + identification));
+        return customResponseBuilder
+                .buildResponse(HttpStatus.OK, "Cliente encontrado", ClientMapper
+                        .INSTANCE.clientToClientResponse(client));
     }
 
     @Override
@@ -66,13 +79,13 @@ public class ClientServiceImpl implements IClientService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, ClientRequest client) {
-        Client clientToUpdate = clientRepository.findById(id).orElseThrow( () -> new RuntimeException("No se encontro el cliente con id: " + id));
+        Client clientToUpdate = clientRepository.findById(id)
+                .orElseThrow( () -> new RuntimeException("No se encontro el cliente con id: " + id));
         clientToUpdate.setFullname(client.getFullname());
         clientToUpdate.setEmail(client.getEmail());
         clientToUpdate.setTelephone(client.getTelephone());
         clientToUpdate.setAddress(client.getAddress());
-        clientToUpdate.setType(client.getType());
-        clientToUpdate.setActive(client.getActive());
+        clientToUpdate.setStatus(client.getStatus());
         clientToUpdate.setIdentification(client.getIdentification());
         clientToUpdate.setIdentificationType(client.getIdentificationType());
         ClientResponse response = ClientMapper.INSTANCE.clientToClientResponse(clientRepository.save(clientToUpdate));

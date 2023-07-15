@@ -2,7 +2,7 @@ create table client
 (
     id                  uuid not null
         primary key,
-    active              boolean,
+    status              boolean,
     address             varchar(255),
     email               varchar(255)
         constraint uk_bfgjs3fem0hmjhvih80158x29
@@ -12,8 +12,7 @@ create table client
         constraint uk_powwvjq5dtrded35jufhbmcsd
             unique,
     identification_type varchar(255),
-    telephone           varchar(255),
-    type                varchar(255)
+    telephone           varchar(255)
 );
 
 
@@ -208,5 +207,8 @@ create table purchase_detail
         constraint fk65hoe4yy1817l2vm74msb8eq5
             references purchase
 );
+
+INSERT INTO client (id, status, address, email, fullname, identification, identification_type, telephone) VALUES ('1744f710-bdea-4a04-bd3b-97d1c3d00364', true, 'S/D', 'noname@noname.com', 'Consumidor final', '9999999999999', 'CEDULA', '0000000000');
+
 
 
