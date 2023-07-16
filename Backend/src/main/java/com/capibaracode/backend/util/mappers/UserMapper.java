@@ -1,5 +1,6 @@
 package com.capibaracode.backend.util.mappers;
 
+import com.capibaracode.backend.api.models.requests.UserRequest;
 import com.capibaracode.backend.api.models.responses.CompanyResponse;
 import com.capibaracode.backend.api.models.responses.UserResponse;
 import com.capibaracode.backend.api.models.responses.UserResponseDTO;
@@ -43,5 +44,7 @@ public interface UserMapper {
     @Mapping(target = "telephone", source = "user.telephone")
     @Mapping(target = "role", source = "user.role")
     UserResponseDTO userResponseDTOFromUser(User user);
+
+    User userFromUserRequest(UserRequest request);
 
 }

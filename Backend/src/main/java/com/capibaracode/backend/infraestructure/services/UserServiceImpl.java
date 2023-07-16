@@ -3,9 +3,12 @@ package com.capibaracode.backend.infraestructure.services;
 
 import com.capibaracode.backend.api.models.requests.RegisterRequest;
 import com.capibaracode.backend.api.models.requests.UserRequest;
+import com.capibaracode.backend.api.models.responses.UserResponse;
+import com.capibaracode.backend.api.models.responses.UserResponseDTO;
 import com.capibaracode.backend.common.CustomAPIResponse;
 import com.capibaracode.backend.common.CustomResponseBuilder;
 import com.capibaracode.backend.config.security.model.UserPrincipal;
+import com.capibaracode.backend.domain.entities.Client;
 import com.capibaracode.backend.domain.entities.Company;
 import com.capibaracode.backend.domain.entities.User;
 import com.capibaracode.backend.domain.repositories.CompanyRepository;
@@ -29,6 +32,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -87,12 +92,32 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, UserRequest request) {
-        return null;
+        if(Objects.isNull(request.getPassword())) return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La contraseña no puede estar vacia");
+        if(Objects.isNull(request.getStatus())) return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El estado no puede estar vacio");
+        User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        user.setRole(request.getRole());
+        user.setFullName(request.getFullName());
+        user.setTelephone(request.getTelephone());
+        user.setEmail(request.getEmail());
+        user.setIdentification(request.getIdentification());
+        user.setStatus(request.getStatus());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+        return responseBuilder.buildResponse(HttpStatus.OK, "Usuario actualizado exitosamente");
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> save(UUID id, UserRequest request) {
-        return null;
+    public ResponseEntity<CustomAPIResponse<?>> save(UserRequest request, UUID companyId) {
+        Company company = companyRepository.findById(companyId).orElseThrow(()-> new RuntimeException("Compania no encontrada"));
+        User user = UserMapper.INSTANCE.userFromUserRequest(request);
+        user.setStatus(true);
+        user.setCompany(company);
+        String password = registerUtils.generatePassword();
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        emailService.sendSimpleMail(
+                new EmailDetails(user.getEmail(), registerUtils.bodyMessage(password), "Generación de contraseña"));
+        return responseBuilder.buildResponse(HttpStatus.CREATED, "Usuario creado exitosamente", UserMapper.INSTANCE.userResponseDTOFromUser(user));
     }
 
     @Override
@@ -104,6 +129,20 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         emailService.sendSimpleMail(
                 new EmailDetails(user.getEmail(), MessageFormat.format("Su nueva contraseña es: <strong>{0}</strong>, recuerda cambiarla", password), "Recuperación de contraseña"));
         return responseBuilder.buildResponse(HttpStatus.OK, "Nueva contraseña enviada al correo exitosamente");
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> findAllByCompany(UUID companyId) {
+        Company company = companyRepository.findById(companyId).orElseThrow(()-> new RuntimeException("Compania no encontrada"));
+        List<User> users = userRepository.findAllByCompany(company);
+        List<UserResponseDTO> userResponses = users.stream().map(UserMapper.INSTANCE::userResponseDTOFromUser).toList();
+        return responseBuilder.buildResponse(HttpStatus.OK, "Usuarios encontrados exitosamente", userResponses);
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> findById(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        return responseBuilder.buildResponse(HttpStatus.OK, "Usuario encontrado exitosamente", UserMapper.INSTANCE.userResponseDTOFromUser(user));
     }
 
     @Override
