@@ -14,4 +14,5 @@ public record UserResponse(
         String telephone,
         Collection<? extends GrantedAuthority> authorities,
         CompanyResponse company) {
+
 }

@@ -16,13 +16,8 @@ import org.hibernate.annotations.ColumnDefault;
 @Setter
 @NoArgsConstructor
 public class UserRequest {
-    @NotBlank(message = "El nombre de usuario es obligatorio")
-    @Size(max = 20, message = "El nombre de usuario no puede tener mas de 20 caracteres")
-    private String username;
 
 
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, max = 16, message = "La contraseña debe tener de 8 a 16 caracteres")
     private String password;
 
     @NotBlank(message = "El nombre completo es obligatorio")

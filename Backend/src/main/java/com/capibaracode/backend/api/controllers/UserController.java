@@ -1,5 +1,6 @@
 package com.capibaracode.backend.api.controllers;
 
+import com.capibaracode.backend.api.models.requests.UserRequest;
 import com.capibaracode.backend.common.CustomAPIResponse;
 import com.capibaracode.backend.infraestructure.abstract_services.IUserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,7 +25,24 @@ public class UserController {
         return userService.updatePassword(id, password);
     }
 
+    @PostMapping(value = "/create/{companyId}")
+    public ResponseEntity<CustomAPIResponse<?>> create(@RequestBody UserRequest request, @PathVariable("companyId") UUID companyId){
+        return userService.save(request, companyId);
+    }
 
+    @PatchMapping(value = "/update/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> update(@PathVariable("id") UUID id, @RequestBody UserRequest request){
+        return userService.update(id, request);
+    }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> findById(@PathVariable("id") UUID id){
+        return userService.findById(id);
+    }
+
+    @GetMapping(value = "/company/{companyId}")
+    public ResponseEntity<CustomAPIResponse<?>> findAllByCompany(@PathVariable("companyId") UUID companyId){
+        return userService.findAllByCompany(companyId);
+    }
 
 }
