@@ -40,6 +40,7 @@ create table invoice
     total                 numeric(38, 2),
     discount              numeric(38, 2),
     key_access            varchar(255),
+    xml                   text,
     client_id             uuid
         constraint fk6y01j0975eqwmnb0gckttrbj2
             references client,

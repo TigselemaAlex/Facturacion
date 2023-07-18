@@ -147,18 +147,8 @@ public class InvoiceServiceImpl implements IInvoiceService {
         invoice.setDetails(details);
         UserResponseDTO userResponseDTO = UserMapper.INSTANCE.userResponseDTOFromUser(user);
         ClientResponse clientResponse = ClientMapper.INSTANCE.clientToClientResponse(client);
-        Invoice invoiceFromDB = invoiceRepository.save(invoice);
-        List<InvoiceDetailsResponse> detailsResponse = invoiceFromDB.getDetails()
-                .stream()
-                .map(invoiceDetail -> {
-                    ProductResponse productResponse = ProductMapper.INSTANCE
-                            .productResponseFromProductWithoutRelations(invoiceDetail.getProduct());
-                    return InvoiceDetailMapper.INSTANCE
-                            .invoiceDetailsResponseFromInvoiceDetail(invoiceDetail, productResponse);
-                })
-                .toList();
-        InvoiceResponse invoiceResponse = InvoiceMapper.INSTANCE
-                .invoiceResponseFromInvoice(invoiceFromDB, detailsResponse, userResponseDTO, clientResponse);
+
+
 
         InvoiceXMLModel xmlModel = new InvoiceXMLModel();
         InvoiceXMLModel.InfoTributaria infoTributaria = new InvoiceXMLModel.InfoTributaria();
@@ -231,7 +221,20 @@ public class InvoiceServiceImpl implements IInvoiceService {
         detalles.setDetalle(detailsXml);
         xmlModel.setDetalles(detalles);
 
-        XMLUtils.createXML(xmlModel, accessKey);
+        String xml = XMLUtils.createXML(xmlModel, accessKey);
+        invoice.setXml(xml);
+        Invoice invoiceFromDB = invoiceRepository.save(invoice);
+        List<InvoiceDetailsResponse> detailsResponse = invoiceFromDB.getDetails()
+                .stream()
+                .map(invoiceDetail -> {
+                    ProductResponse productResponse = ProductMapper.INSTANCE
+                            .productResponseFromProductWithoutRelations(invoiceDetail.getProduct());
+                    return InvoiceDetailMapper.INSTANCE
+                            .invoiceDetailsResponseFromInvoiceDetail(invoiceDetail, productResponse);
+                })
+                .toList();
+        InvoiceResponse invoiceResponse = InvoiceMapper.INSTANCE
+                .invoiceResponseFromInvoice(invoiceFromDB, detailsResponse, userResponseDTO, clientResponse);
 
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Factura creada con exito", invoiceResponse);
     }
@@ -286,6 +289,10 @@ public class InvoiceServiceImpl implements IInvoiceService {
             factor = (factor == 7) ? 2 : ++factor;
         }
         int verificationDigit = 11 - (sum % 11);
+        if(verificationDigit == 11)
+            verificationDigit = 0;
+        else if(verificationDigit == 10)
+            verificationDigit = 1;
         key += verificationDigit;
         return key;
     }
