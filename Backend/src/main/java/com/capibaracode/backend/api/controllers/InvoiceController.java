@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping(value = "/protected/invoices")
 @SecurityRequirement(name = "swagger")
@@ -26,5 +28,10 @@ public class InvoiceController {
     @GetMapping()
     public ResponseEntity<CustomAPIResponse<?>> findAll(){
         return invoiceService.findAll();
+    }
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> findById(@PathVariable final UUID id){
+        return invoiceService.findById(id);
     }
 }
