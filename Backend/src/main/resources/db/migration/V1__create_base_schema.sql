@@ -38,6 +38,8 @@ create table invoice
     status                smallint,
     subtotal_excludingiva numeric(38, 2),
     total                 numeric(38, 2),
+    discount              numeric(38, 2),
+    key_access            varchar(255),
     client_id             uuid
         constraint fk6y01j0975eqwmnb0gckttrbj2
             references client,
@@ -207,6 +209,16 @@ create table purchase_detail
         constraint fk65hoe4yy1817l2vm74msb8eq5
             references purchase
 );
+
+create table invoice_serial
+(
+    id         bigserial
+        primary key,
+    sequential varchar(255),
+    serial     varchar(255)
+);
+
+INSERT INTO  invoice_serial (serial, sequential) VALUES ('001001','000000001');
 
 INSERT INTO client (id, status, address, email, fullname, identification, identification_type, telephone) VALUES ('1744f710-bdea-4a04-bd3b-97d1c3d00364', true, 'S/D', 'noname@noname.com', 'Consumidor final', '9999999999999', 'CEDULA', '0000000000');
 
