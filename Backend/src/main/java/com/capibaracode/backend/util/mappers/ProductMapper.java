@@ -19,6 +19,7 @@ public interface ProductMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "promotion", ignore = true)
     @Mapping(target = "tax", ignore = true)
+    @Mapping(target = "supplier", ignore = true)
     Product productFromProductRequest(ProductRequest request);
 
     @Mapping(target = "id", source = "product.id")
@@ -32,6 +33,7 @@ public interface ProductMapper {
     @Mapping(target = "category", source = "category")
     @Mapping(target = "promotion", source = "promotion")
     @Mapping(target = "tax", source = "tax")
+    @Mapping(target = "supplier", ignore = true)
     ProductResponse productResponseFromProduct(Product product, CategoryResponse category, PromotionResponse promotion, TaxResponse tax);
 
 }

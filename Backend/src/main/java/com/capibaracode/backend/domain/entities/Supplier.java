@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -35,5 +37,9 @@ public class Supplier {
     @Column(nullable = false)
     @ColumnDefault("true")
     private Boolean status;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "supplier_id", referencedColumnName = "id")
+    private List<Product> products = new ArrayList<>();
 
 }

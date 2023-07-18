@@ -51,10 +51,6 @@ public class Purchase {
     @JoinColumn(name = "purchase_id", referencedColumnName = "id")
     private List<PurchaseDetail> details = new ArrayList<>();
 
-    public void setNewList(List<PurchaseDetail> newDetails){
-        this.details = newDetails;
-    }
-
     public void addPurchaseDetail(PurchaseDetail purchaseDetail) {
         if (purchaseDetail != null) {
             if (details == null) { details = new ArrayList<>(); }

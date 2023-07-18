@@ -36,4 +36,6 @@ public class ProductResponse {
 
     private TaxResponse tax;
 
+    private UUID supplier;
+
 }
