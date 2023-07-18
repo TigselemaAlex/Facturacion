@@ -44,4 +44,7 @@ public class ProductRequest {
 
     private UUID tax;
 
+    @NotNull(message = "El proveedor es obligatorio.")
+    private UUID supplier;
+
 }

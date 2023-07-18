@@ -13,4 +13,6 @@ public interface IProductService {
     ResponseEntity<CustomAPIResponse<?>> update(UUID id, ProductRequest request);
     ResponseEntity<CustomAPIResponse<?>> findByID(UUID id);
 
+    ResponseEntity<CustomAPIResponse<?>> findByIDSupplier(UUID id);
+
 }

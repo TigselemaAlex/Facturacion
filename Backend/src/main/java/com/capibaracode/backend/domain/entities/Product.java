@@ -45,4 +45,9 @@ public class Product {
     private Promotion promotion;
     @ManyToOne
     private Tax tax;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
+
 }

@@ -92,14 +92,18 @@ create table promotion
 
 create table supplier
 (
-    id             uuid not null
+    id             uuid                 not null
         primary key,
-    email          varchar(255),
-    identification varchar(255),
-    name           varchar(255),
-    telephone      varchar(255),
-    address        varchar(255),
-    status         boolean
+    address        varchar(150)         not null,
+    email          varchar(120)         not null,
+    identification varchar(13)          not null
+        constraint uk_kier99txxp8yb03d48f5oe1vu
+            unique,
+    name           varchar(80)          not null
+        constraint uk_c3fclhmodftxk4d0judiafwi3
+            unique,
+    status         boolean default true not null,
+    telephone      varchar(20)          not null
 );
 
 
@@ -162,13 +166,16 @@ create table product
     name         varchar(255),
     price        double precision,
     quantity     double precision,
-    status       boolean,
+    status       boolean          not null,
     category_id  uuid
         constraint fk1mtsbur82frn64de7balymq9s
             references category,
     promotion_id uuid
         constraint fkcli9x921yidy04cx25k6m46fy
             references promotion,
+    supplier_id  uuid
+        constraint fk2kxvbr72tmtscjvyp9yqb12by
+            references supplier,
     tax_id       uuid
         constraint fk9lk9bo7vg7ug89vmn99wj40eh
             references tax
