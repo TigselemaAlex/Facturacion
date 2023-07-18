@@ -11,4 +11,6 @@ public interface IInvoiceService {
 
     ResponseEntity<CustomAPIResponse<?>> findAll();
 
+    ResponseEntity<CustomAPIResponse<?>> findById(UUID id);
+
 }

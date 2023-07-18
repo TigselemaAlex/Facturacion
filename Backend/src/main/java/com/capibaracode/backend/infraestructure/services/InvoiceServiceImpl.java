@@ -7,7 +7,11 @@ import com.capibaracode.backend.common.CustomResponseBuilder;
 import com.capibaracode.backend.domain.entities.*;
 import com.capibaracode.backend.domain.repositories.*;
 import com.capibaracode.backend.infraestructure.abstract_services.IInvoiceService;
+import com.capibaracode.backend.util.enums.IdentificationType;
+import com.capibaracode.backend.util.enums.InvoiceStatus;
 import com.capibaracode.backend.util.mappers.*;
+import com.capibaracode.backend.util.xml.InvoiceXMLModel;
+import com.capibaracode.backend.util.xml.XMLUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +49,8 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> createInvoice(InvoiceRequest request) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         Client client = clientRepository.findById(request.getClient()).orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         User user = userRepository.findById(request.getUser()).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         Payment payment = paymentRepository.findById(request.getPayment()).orElseThrow(() -> new RuntimeException("Pago no encontrado"));
@@ -60,7 +65,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
         invoiceSerial.setSequential(String.format("%09d", newSequential));
         invoiceSerialRepository.save(invoiceSerial);
         String accessKey = "";
-        String date = now.format(formatter).replace("-", "");
+        String date = now.format(formatter).replace("/", "");
         String type = "01";
         String ruc = user.getCompany().getRuc();
         String environment = "1";
@@ -73,6 +78,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
         invoice.setKeyAccess(accessKey);
         invoice.setClient(client);
         invoice.setIssueDate(now);
+        invoice.setStatus(InvoiceStatus.PENDIENTE);
         invoice.setUser(user);
         invoice.setPayment(payment);
         invoice.setIva(request.getIva());
@@ -80,6 +86,42 @@ public class InvoiceServiceImpl implements IInvoiceService {
         invoice.setTotal(request.getTotal());
         invoice.setDiscount(request.getDiscount());
         invoice.setDescription(request.getDescription());
+
+        List<InvoiceXMLModel.Detalles.Detalle> detailsXml = request.getDetails().stream()
+                .map(detail -> {
+                            InvoiceXMLModel.Detalles.Detalle invoiceDetail = new InvoiceXMLModel.Detalles.Detalle();
+                            invoiceDetail.setDescuento(String.format("%12.2f", detail.getDiscount()).trim());
+                            invoiceDetail.setPrecioUnitario(String.format("%12.2f", detail.getPrice()).trim());
+                            invoiceDetail.setCantidad(String.format("%12.2f", (double) detail.getQuantity()).trim());
+                            invoiceDetail.setPrecioTotalSinImpuesto(String.format("%12.2f", detail.getSubtotalExcludingIVA()));
+                            Product product = productRepository
+                                    .findById(detail.getProduct())
+                                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                            invoiceDetail.setCodigoPrincipal(product.getCode());
+                            invoiceDetail.setDescripcion(product.getName());
+
+                            if (product.getCategory().getTax().getTax().equals("0")){
+                                invoiceDetail.setImpuestos(new InvoiceXMLModel.Detalles.Detalle.Impuestos());
+                                InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto impuesto0 = new InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto();
+                                impuesto0.setBaseImponible(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim());
+                                impuesto0.setCodigo("2");
+                                impuesto0.setCodigoPorcentaje("0");
+                                impuesto0.setTarifa("0");
+                                impuesto0.setValor( String.format("%12.2f", detail.getSubtotal()).trim());
+                            }
+                            if (product.getCategory().getTax().getTax().equals("12")){
+                                invoiceDetail.setImpuestos(new InvoiceXMLModel.Detalles.Detalle.Impuestos());
+                                InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto impuesto12 = new InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto();
+                                impuesto12.setBaseImponible(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim());
+                                impuesto12.setCodigo("2");
+                                impuesto12.setCodigoPorcentaje("2");
+                                impuesto12.setTarifa("12");
+                                impuesto12.setValor( String.format("%12.2f", detail.getSubtotal()).trim());
+                            }
+                            return invoiceDetail;
+                        }
+                ).toList();
+
         List<InvoiceDetail> details = request.getDetails().stream()
                 .map(detail -> {
                             InvoiceDetail invoiceDetail = new InvoiceDetail();
@@ -90,7 +132,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
                             Product product = productRepository
                                     .findById(detail.getProduct())
                                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-                            if(product.getQuantity() < detail.getQuantity())
+                            if (product.getQuantity() < detail.getQuantity())
                                 throw new RuntimeException("No hay suficiente stock");
                             product.setQuantity(product.getQuantity() - detail.getQuantity());
                             productRepository.save(product);
@@ -108,12 +150,81 @@ public class InvoiceServiceImpl implements IInvoiceService {
                 .map(invoiceDetail -> {
                     ProductResponse productResponse = ProductMapper.INSTANCE
                             .productResponseFromProductWithoutRelations(invoiceDetail.getProduct());
-                     return InvoiceDetailMapper.INSTANCE
-                             .invoiceDetailsResponseFromInvoiceDetail(invoiceDetail, productResponse);
+                    return InvoiceDetailMapper.INSTANCE
+                            .invoiceDetailsResponseFromInvoiceDetail(invoiceDetail, productResponse);
                 })
                 .toList();
         InvoiceResponse invoiceResponse = InvoiceMapper.INSTANCE
                 .invoiceResponseFromInvoice(invoiceFromDB, detailsResponse, userResponseDTO, clientResponse);
+
+        InvoiceXMLModel xmlModel = new InvoiceXMLModel();
+        InvoiceXMLModel.InfoTributaria infoTributaria = new InvoiceXMLModel.InfoTributaria();
+        infoTributaria.setAmbiente("1");
+        infoTributaria.setTipoEmision("1");
+        infoTributaria.setRazonSocial(user.getCompany().getName());
+        infoTributaria.setNombreComercial(user.getCompany().getName());
+        infoTributaria.setRuc(user.getCompany().getRuc().length() == 9 ? user.getCompany().getRuc() + "001" : user.getCompany().getRuc());
+        infoTributaria.setClaveAcceso(accessKey);
+        infoTributaria.setCodDoc("01");
+        infoTributaria.setEstab(establishment);
+        infoTributaria.setPtoEmi(emissionPoint);
+        infoTributaria.setSecuencial(sequential);
+        infoTributaria.setDirMatriz(user.getCompany().getAddress());
+        xmlModel.setInfoTributaria(infoTributaria);
+
+        InvoiceXMLModel.InfoFactura infoFactura = new InvoiceXMLModel.InfoFactura();
+        infoFactura.setFechaEmision(now.format(formatter));
+        infoFactura.setDirEstablecimiento(user.getCompany().getAddress());
+        infoFactura.setContribuyenteEspecial("536");
+
+        infoFactura.setObligadoContabilidad(user.getCompany().getAccounting() ? "SI" : "NO");
+
+
+        infoFactura.setTipoIdentificacionComprador(client.getIdentification()
+                .equals("9999999999999") ? "07" : getIdentificationCode(client.getIdentificationType()));
+        infoFactura.setGuiaRemision(establishment + "-" + emissionPoint + "-" + sequential);
+        infoFactura.setRazonSocialComprador(client.getFullname());
+        infoFactura.setIdentificacionComprador(client.getIdentification());
+        infoFactura.setDireccionComprador(client.getAddress());
+        infoFactura.setTotalSinImpuestos(request.getSubtotalExcludingIVA().toString());
+        infoFactura.setTotalDescuento(request.getDiscount().toString());
+
+
+        InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto totalImpuestoIVA0 = new InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto();
+        totalImpuestoIVA0.setCodigo("2");
+        totalImpuestoIVA0.setCodigoPorcentaje("0");
+        totalImpuestoIVA0.setBaseImponible(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim());
+        totalImpuestoIVA0.setValor(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim());
+        InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto totalImpuestoIVA12 = new InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto();
+        totalImpuestoIVA12.setCodigo("2");
+        totalImpuestoIVA12.setCodigoPorcentaje("2");
+        totalImpuestoIVA12.setBaseImponible(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim());
+        totalImpuestoIVA12.setDescuentoAdicional(String.format("%12.2f", request.getIva()).trim());
+        totalImpuestoIVA12.setValor(String.format("%12.2f", request.getTotal()).trim());
+        infoFactura.setPropina("0.00");
+        infoFactura.setImporteTotal(request.getTotal().toString());
+        infoFactura.setMoneda("DOLAR");
+
+        InvoiceXMLModel.InfoFactura.TotalConImpuestos totalConImpuestos = new InvoiceXMLModel.InfoFactura.TotalConImpuestos();
+        totalConImpuestos.getTotalImpuesto().add(totalImpuestoIVA0);
+        totalConImpuestos.getTotalImpuesto().add(totalImpuestoIVA12);
+        infoFactura.setTotalConImpuestos(totalConImpuestos);
+        InvoiceXMLModel.InfoFactura.Pagos.Pago pago = new InvoiceXMLModel.InfoFactura.Pagos.Pago();
+        pago.setFormaPago(paymentCode(payment));
+        pago.setTotal(String.format("%12.2f", request.getTotal()).trim());
+        pago.setPlazo("0");
+        pago.setUnidadTiempo("dias");
+        InvoiceXMLModel.InfoFactura.Pagos pagos = new InvoiceXMLModel.InfoFactura.Pagos();
+        pagos.getPago().add(pago);
+        infoFactura.setPagos(pagos);
+        xmlModel.setInfoFactura(infoFactura);
+
+        InvoiceXMLModel.Detalles detalles = new InvoiceXMLModel.Detalles();
+        detalles.setDetalle(detailsXml);
+        xmlModel.setDetalles(detalles);
+
+        XMLUtils.createXML(xmlModel, accessKey);
+
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Factura creada con exito", invoiceResponse);
     }
 
@@ -140,7 +251,25 @@ public class InvoiceServiceImpl implements IInvoiceService {
         return responseBuilder.buildResponse(HttpStatus.OK, "Listado de facturas", invoiceResponses);
     }
 
-    private String  generateVerificationDigit(String key){
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> findById(UUID id) {
+        Invoice invoice = invoiceRepository.findById(id).orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+        UserResponseDTO userResponseDTO = UserMapper.INSTANCE.userResponseDTOFromUser(invoice.getUser());
+        ClientResponse clientResponse = ClientMapper.INSTANCE.clientToClientResponse(invoice.getClient());
+        List<InvoiceDetailsResponse> detailsResponse = invoice.getDetails()
+                .stream()
+                .map(invoiceDetail -> {
+                    ProductResponse productResponse = ProductMapper.INSTANCE
+                            .productResponseFromProductWithoutRelations(invoiceDetail.getProduct());
+                    return InvoiceDetailMapper.INSTANCE
+                            .invoiceDetailsResponseFromInvoiceDetail(invoiceDetail, productResponse);
+                })
+                .toList();
+        InvoiceResponse invoiceResponse = InvoiceMapper.INSTANCE.invoiceResponseFromInvoice(invoice, detailsResponse, userResponseDTO, clientResponse);
+        return responseBuilder.buildResponse(HttpStatus.OK, "Factura encontrada", invoiceResponse);
+    }
+
+    private String generateVerificationDigit(String key) {
         int factor = 2;
         int sum = 0;
         for (int i = 0; i < key.length(); i++) {
@@ -152,4 +281,43 @@ public class InvoiceServiceImpl implements IInvoiceService {
         key += verificationDigit;
         return key;
     }
+
+    private String paymentCode(Payment payment) {
+        switch (payment.getPayment()) {
+            case "SIN UTILIZACION DEL SISTEMA FINANCIERO":
+                return "01";
+            case "COMPENSACIÓN DE DEUDAS":
+                return "15";
+            case "TARJETA DE DÉBITO":
+                return "16";
+            case "DINERO ELECTRÓNICO":
+                return "17";
+            case "TARJETA PREPAGO":
+                return "18";
+            case "TARJETA DE CRÉDITO":
+                return "19";
+            case "OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO":
+                return "20";
+            case "ENDOSO DE TÍTULOS":
+                return "21";
+            default:
+                return "01";
+
+        }
+    }
+
+    private String getIdentificationCode(IdentificationType identificationType) {
+        switch (identificationType) {
+            case CEDULA:
+                return "05";
+            case RUC:
+                return "04";
+            case PASAPORTE:
+                return "06";
+            default:
+                return "07";
+        }
+    }
+
+
 }
