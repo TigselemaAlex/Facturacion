@@ -92,7 +92,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> update(UUID id, UserRequest request) {
-        if(Objects.isNull(request.getPassword())) return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La contraseña no puede estar vacia");
+        //if(Objects.isNull(request.getPassword())) return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "La contraseña no puede estar vacia");
         if(Objects.isNull(request.getStatus())) return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El estado no puede estar vacio");
         User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
         user.setRole(request.getRole());
@@ -101,7 +101,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         user.setEmail(request.getEmail());
         user.setIdentification(request.getIdentification());
         user.setStatus(request.getStatus());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        //user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
         return responseBuilder.buildResponse(HttpStatus.OK, "Usuario actualizado exitosamente");
     }
