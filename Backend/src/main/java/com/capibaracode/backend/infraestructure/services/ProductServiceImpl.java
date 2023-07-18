@@ -7,14 +7,8 @@ import com.capibaracode.backend.api.models.responses.PromotionResponse;
 import com.capibaracode.backend.api.models.responses.TaxResponse;
 import com.capibaracode.backend.common.CustomAPIResponse;
 import com.capibaracode.backend.common.CustomResponseBuilder;
-import com.capibaracode.backend.domain.entities.Category;
-import com.capibaracode.backend.domain.entities.Product;
-import com.capibaracode.backend.domain.entities.Promotion;
-import com.capibaracode.backend.domain.entities.Tax;
-import com.capibaracode.backend.domain.repositories.CategoryRepository;
-import com.capibaracode.backend.domain.repositories.ProductRepository;
-import com.capibaracode.backend.domain.repositories.PromotionRepository;
-import com.capibaracode.backend.domain.repositories.TaxRepository;
+import com.capibaracode.backend.domain.entities.*;
+import com.capibaracode.backend.domain.repositories.*;
 import com.capibaracode.backend.infraestructure.abstract_services.IProductService;
 import com.capibaracode.backend.util.mappers.CategoryMapper;
 import com.capibaracode.backend.util.mappers.ProductMapper;
@@ -27,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 
@@ -40,14 +33,17 @@ public class ProductServiceImpl implements IProductService {
     private final CustomResponseBuilder responseBuilder;
     private final CategoryRepository categoryRepository;
     private final PromotionRepository promotionRepository;
+
+    private final SupplierRepository supplierRepository;
     private final TaxRepository taxRepository;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, CustomResponseBuilder responseBuilder, CategoryRepository categoryRepository, PromotionRepository promotionRepository, TaxRepository taxRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CustomResponseBuilder responseBuilder, CategoryRepository categoryRepository, PromotionRepository promotionRepository, SupplierRepository supplierRepository, TaxRepository taxRepository) {
         this.productRepository = productRepository;
         this.responseBuilder = responseBuilder;
         this.categoryRepository = categoryRepository;
         this.promotionRepository = promotionRepository;
+        this.supplierRepository = supplierRepository;
         this.taxRepository = taxRepository;
     }
 
@@ -90,9 +86,18 @@ public class ProductServiceImpl implements IProductService {
         }else{
             product.setTax(null);
         }
+        if(request.getSupplier() != null){
+            if (supplierRepository.existsById(request.getSupplier())){
+                Supplier supplier = supplierRepository.findById(request.getSupplier()).orElseThrow(()-> new RuntimeException("El proveedor con id "+ request.getSupplier() + " no existe"));
+                product.setSupplier(supplier);
+            }else {
+                product.setSupplier(null);
+            }
+        }
         PromotionResponse promotionResponseFromProduct = PromotionMapper.INSTANCE.promotionResponseFromPromotion(product.getPromotion());
         TaxResponse taxResponseFromProduct = TaxMapper.INSTANCE.taxResponseFromTax(product.getTax());
         ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(productRepository.save(product), categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
+        productResponse.setSupplier(product.getSupplier().getId());
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Producto agregado exitosamente.", productResponse);
     }
 
@@ -112,7 +117,9 @@ public class ProductServiceImpl implements IProductService {
                     }else{
                         categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, null, null);
                     }
-                    return ProductMapper.INSTANCE.productResponseFromProduct(product, categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
+                    ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(product, categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
+                    productResponse.setSupplier(product.getSupplier().getId());
+                    return productResponse;
                 }).toList();
         return responseBuilder.buildResponse(HttpStatus.OK, "Lista de Productos.", productResponseList);
     }
@@ -164,9 +171,18 @@ public class ProductServiceImpl implements IProductService {
         }else{
             productToEdit.setTax(null);
         }
+        if(request.getSupplier() != null){
+            if (supplierRepository.existsById(request.getSupplier())){
+                Supplier supplier = supplierRepository.findById(request.getSupplier()).orElseThrow(()-> new RuntimeException("El proveedor con id "+ request.getSupplier() + " no existe"));
+                productToEdit.setSupplier(supplier);
+            }else {
+                productToEdit.setSupplier(null);
+            }
+        }
         PromotionResponse promotionResponseFromProduct = PromotionMapper.INSTANCE.promotionResponseFromPromotion(productToEdit.getPromotion());
         TaxResponse taxResponseFromProduct = TaxMapper.INSTANCE.taxResponseFromTax(productToEdit.getTax());
         ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(productRepository.save(productToEdit), categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
+        productResponse.setSupplier(productToEdit.getSupplier().getId());
         return responseBuilder.buildResponse(HttpStatus.OK, "Producto actualizado exitosamente.", productResponse);
     }
 
@@ -185,7 +201,35 @@ public class ProductServiceImpl implements IProductService {
             categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, null, null);
         }
         ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(product, categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
+        productResponse.setSupplier(product.getSupplier().getId());
         return responseBuilder.buildResponse(HttpStatus.OK, "Producto encontrado exitosamente.", productResponse);
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> findByIDSupplier(UUID id) {
+        if (!supplierRepository.existsById(id)){
+            return responseBuilder.buildResponse(HttpStatus.BAD_REQUEST, "El proveedor con id " + id + " no existe");
+        }
+        Supplier supplier = supplierRepository.findById(id).orElseThrow(()-> new RuntimeException("El proveedor con id " + id + " no existe"));
+        List<Product> productList = productRepository.findAllBySupplier(supplier);
+        List<ProductResponse> productResponseList = productList.stream().
+                map(product -> {
+                    PromotionResponse promotionResponseFromProduct = PromotionMapper.INSTANCE.promotionResponseFromPromotion(product.getPromotion());
+                    TaxResponse taxResponseFromProduct = TaxMapper.INSTANCE.taxResponseFromTax(product.getTax());
+                    Category category = product.getCategory();
+                    CategoryResponse categoryResponse;
+                    if(category != null){
+                        PromotionResponse promotionResponse = PromotionMapper.INSTANCE.promotionResponseFromPromotion(category.getPromotion());
+                        TaxResponse taxResponse = TaxMapper.INSTANCE.taxResponseFromTax(category.getTax());
+                        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, promotionResponse, taxResponse);
+                    }else{
+                        categoryResponse = CategoryMapper.INSTANCE.categoryResponseFromCategory(category, null, null);
+                    }
+                    ProductResponse productResponse = ProductMapper.INSTANCE.productResponseFromProduct(product, categoryResponse, promotionResponseFromProduct, taxResponseFromProduct);
+                    productResponse.setSupplier(product.getSupplier().getId());
+                    return productResponse;
+                }).toList();
+        return responseBuilder.buildResponse(HttpStatus.OK, "Lista de Productos por Proveedor.", productResponseList);
     }
 
 }

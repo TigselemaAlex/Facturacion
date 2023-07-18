@@ -41,4 +41,9 @@ public class ProductController {
         return productService.findByID(id);
     }
 
+    @GetMapping(value = "/by-supplier/{id}")
+    public ResponseEntity<CustomAPIResponse<?>> findByIDSupplier(@PathVariable final UUID id){
+        return productService.findByIDSupplier(id);
+    }
+
 }
