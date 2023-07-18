@@ -34,4 +34,15 @@ public interface ProductMapper {
     @Mapping(target = "tax", source = "tax")
     ProductResponse productResponseFromProduct(Product product, CategoryResponse category, PromotionResponse promotion, TaxResponse tax);
 
+    @Mapping(target = "id", source = "product.id")
+    @Mapping(target = "code", source = "product.code")
+    @Mapping(target = "name", source = "product.name")
+    @Mapping(target = "price", source = "product.price")
+    @Mapping(target = "quantity", source = "product.quantity")
+    @Mapping(target = "status", source = "product.status")
+    @Mapping(target = "minStock", source = "product.minStock")
+    @Mapping(target = "maxStock", source = "product.maxStock")
+    ProductResponse productResponseFromProductWithoutRelations(Product product);
+
+
 }

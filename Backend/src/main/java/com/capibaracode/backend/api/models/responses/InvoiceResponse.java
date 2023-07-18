@@ -1,7 +1,6 @@
-package com.capibaracode.backend.domain.entities;
+package com.capibaracode.backend.api.models.responses;
 
 import com.capibaracode.backend.util.enums.InvoiceStatus;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -12,13 +11,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
-@Entity
-public class Invoice {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class InvoiceResponse {
+
     private UUID id;
     private String invoiceNumber;
     private String keyAccess;
@@ -29,17 +26,7 @@ public class Invoice {
     private BigDecimal subtotalExcludingIVA;
     private BigDecimal total;
     private BigDecimal discount;
-
-    @ManyToOne
-    private User user;
-    @ManyToOne
-    private Client client;
-    @ManyToOne
-    private Payment payment;
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    private List<InvoiceDetail> details = new ArrayList<>();
-
-    public void addDetail(InvoiceDetail detail){
-        this.details.add(detail);
-    }
+    private UserResponseDTO user;
+    private ClientResponse client;
+    private List<InvoiceDetailsResponse> details = new ArrayList<>();
 }
