@@ -1,8 +1,11 @@
 package com.capibaracode.backend.domain.entities;
 
 import com.capibaracode.backend.util.enums.InvoiceStatus;
+import com.capibaracode.backend.util.xml.XMLDocumentConverter;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Type;
+import org.w3c.dom.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,6 +32,9 @@ public class Invoice {
     private BigDecimal subtotalExcludingIVA;
     private BigDecimal total;
     private BigDecimal discount;
+
+    @Column(columnDefinition = "TEXT")
+    private String xml;
 
     @ManyToOne
     private User user;
