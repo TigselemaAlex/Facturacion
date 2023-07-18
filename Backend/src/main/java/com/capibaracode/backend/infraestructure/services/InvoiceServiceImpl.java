@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -28,16 +28,18 @@ public class InvoiceServiceImpl implements IInvoiceService {
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
     private final InvoiceSerialRepository invoiceSerialRepository;
+    private final CompanyRepository companyRepository;
 
     private final CustomResponseBuilder responseBuilder;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, PaymentRepository paymentRepository, UserRepository userRepository, ClientRepository clientRepository, ProductRepository productRepository, InvoiceSerialRepository invoiceSerialRepository, CustomResponseBuilder responseBuilder) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, PaymentRepository paymentRepository, UserRepository userRepository, ClientRepository clientRepository, ProductRepository productRepository, InvoiceSerialRepository invoiceSerialRepository, CompanyRepository companyRepository, CustomResponseBuilder responseBuilder) {
         this.invoiceRepository = invoiceRepository;
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
         this.productRepository = productRepository;
         this.invoiceSerialRepository = invoiceSerialRepository;
+        this.companyRepository = companyRepository;
         this.responseBuilder = responseBuilder;
     }
 
@@ -113,6 +115,29 @@ public class InvoiceServiceImpl implements IInvoiceService {
         InvoiceResponse invoiceResponse = InvoiceMapper.INSTANCE
                 .invoiceResponseFromInvoice(invoiceFromDB, detailsResponse, userResponseDTO, clientResponse);
         return responseBuilder.buildResponse(HttpStatus.CREATED, "Factura creada con exito", invoiceResponse);
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> findAll() {
+        List<Invoice> invoices = invoiceRepository.findAll();
+        List<InvoiceResponse> invoiceResponses = invoices.stream()
+                .map(invoice -> {
+                    UserResponseDTO userResponseDTO = UserMapper.INSTANCE.userResponseDTOFromUser(invoice.getUser());
+                    ClientResponse clientResponse = ClientMapper.INSTANCE.clientToClientResponse(invoice.getClient());
+                    List<InvoiceDetailsResponse> detailsResponse = invoice.getDetails()
+                            .stream()
+                            .map(invoiceDetail -> {
+                                ProductResponse productResponse = ProductMapper.INSTANCE
+                                        .productResponseFromProductWithoutRelations(invoiceDetail.getProduct());
+                                return InvoiceDetailMapper.INSTANCE
+                                        .invoiceDetailsResponseFromInvoiceDetail(invoiceDetail, productResponse);
+                            })
+                            .toList();
+                    return InvoiceMapper.INSTANCE
+                            .invoiceResponseFromInvoice(invoice, detailsResponse, userResponseDTO, clientResponse);
+                })
+                .toList();
+        return responseBuilder.buildResponse(HttpStatus.OK, "Listado de facturas", invoiceResponses);
     }
 
     private String  generateVerificationDigit(String key){
