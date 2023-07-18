@@ -44,6 +44,7 @@ public interface ProductMapper {
     @Mapping(target = "status", source = "product.status")
     @Mapping(target = "minStock", source = "product.minStock")
     @Mapping(target = "maxStock", source = "product.maxStock")
+    @Mapping(target = "supplier", ignore = true)
     ProductResponse productResponseFromProductWithoutRelations(Product product);
 
 
