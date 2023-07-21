@@ -73,7 +73,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
         String numericCode = "12345678";
         String emissionType = "1";
         accessKey = date + type + ruc + environment + sequentialNumber + numericCode + emissionType;
-        accessKey = generateVerificationDigit(accessKey);
+        accessKey = accessKey+generateVerificationDigit(accessKey);
         System.out.println(accessKey.length());
         invoice.setKeyAccess(accessKey);
         invoice.setClient(client);
@@ -90,10 +90,10 @@ public class InvoiceServiceImpl implements IInvoiceService {
         List<InvoiceXMLModel.Detalles.Detalle> detailsXml = request.getDetails().stream()
                 .map(detail -> {
                             InvoiceXMLModel.Detalles.Detalle invoiceDetail = new InvoiceXMLModel.Detalles.Detalle();
-                            invoiceDetail.setDescuento(String.format("%12.2f", detail.getDiscount()).trim());
-                            invoiceDetail.setPrecioUnitario(String.format("%12.2f", detail.getPrice()).trim());
-                            invoiceDetail.setCantidad(String.format("%12.2f", (double) detail.getQuantity()).trim());
-                            invoiceDetail.setPrecioTotalSinImpuesto(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim());
+                            invoiceDetail.setDescuento(String.format("%12.2f", detail.getDiscount()).trim().replace(",", "."));
+                            invoiceDetail.setPrecioUnitario(String.format("%12.2f", detail.getPrice()).trim().replace(",", "."));
+                            invoiceDetail.setCantidad(String.format("%12.2f", (double) detail.getQuantity()).trim().replace(",", "."));
+                            invoiceDetail.setPrecioTotalSinImpuesto(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim().replace(",", "."));
                             Product product = productRepository
                                     .findById(detail.getProduct())
                                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -101,23 +101,25 @@ public class InvoiceServiceImpl implements IInvoiceService {
                             invoiceDetail.setDescripcion(product.getName());
                             InvoiceXMLModel.Detalles.Detalle.Impuestos impuestos = new InvoiceXMLModel.Detalles.Detalle.Impuestos();
 
+
                             if (product.getCategory().getTax().getPercentage().equals(0d)) {
                                 invoiceDetail.setImpuestos(new InvoiceXMLModel.Detalles.Detalle.Impuestos());
                                 InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto impuesto0 = new InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto();
-                                impuesto0.setBaseImponible(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim());
+                                impuesto0.setBaseImponible(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim().replace(",", "."));
                                 impuesto0.setCodigo("2");
                                 impuesto0.setCodigoPorcentaje("0");
                                 impuesto0.setTarifa("0");
-                                impuesto0.setValor(String.format("%12.2f", detail.getSubtotal()).trim());
+
+                                impuesto0.setValor(String.format("%12.2f", detail.getSubtotal()).trim().replace(",", "."));
                                 impuestos.getImpuesto().add(impuesto0);
                             }
                             if (product.getCategory().getTax().getPercentage().equals(12d)) {
                                 InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto impuesto12 = new InvoiceXMLModel.Detalles.Detalle.Impuestos.Impuesto();
-                                impuesto12.setBaseImponible(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim());
+                                impuesto12.setBaseImponible(String.format("%12.2f", detail.getSubtotalExcludingIVA()).trim().replace(",", "."));
                                 impuesto12.setCodigo("2");
                                 impuesto12.setCodigoPorcentaje("2");
                                 impuesto12.setTarifa("12");
-                                impuesto12.setValor(String.format("%12.2f", detail.getSubtotal()).trim());
+                                impuesto12.setValor(String.format("%12.2f", detail.getSubtotal()).trim().replace(",", "."));
                                 impuestos.getImpuesto().add(impuesto12);
                             }
                             invoiceDetail.setImpuestos(impuestos);
@@ -151,6 +153,8 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
 
         InvoiceXMLModel xmlModel = new InvoiceXMLModel();
+        xmlModel.setId("comprobante");
+        xmlModel.setVersion("2.1.0");
         InvoiceXMLModel.InfoTributaria infoTributaria = new InvoiceXMLModel.InfoTributaria();
         infoTributaria.setAmbiente("1");
         infoTributaria.setTipoEmision("1");
@@ -188,16 +192,17 @@ public class InvoiceServiceImpl implements IInvoiceService {
             InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto totalImpuestoIVA0 = new InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto();
             totalImpuestoIVA0.setCodigo("2");
             totalImpuestoIVA0.setCodigoPorcentaje("0");
-            totalImpuestoIVA0.setBaseImponible(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim());
-            totalImpuestoIVA0.setValor(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim());
+            totalImpuestoIVA0.setDescuentoAdicional(String.format("%12.2f", request.getIva()).trim().replace(",", "."));
+            totalImpuestoIVA0.setBaseImponible(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim().replace(",", "."));
+            totalImpuestoIVA0.setValor(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim().replace(",", "."));
             totalConImpuestos.getTotalImpuesto().add(totalImpuestoIVA0);
         } else {
             InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto totalImpuestoIVA12 = new InvoiceXMLModel.InfoFactura.TotalConImpuestos.TotalImpuesto();
             totalImpuestoIVA12.setCodigo("2");
             totalImpuestoIVA12.setCodigoPorcentaje("2");
-            totalImpuestoIVA12.setBaseImponible(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim());
-            totalImpuestoIVA12.setDescuentoAdicional(String.format("%12.2f", request.getIva()).trim());
-            totalImpuestoIVA12.setValor(String.format("%12.2f", request.getTotal()).trim());
+            totalImpuestoIVA12.setBaseImponible(String.format("%12.2f", request.getSubtotalExcludingIVA()).trim().replace(",", "."));
+            totalImpuestoIVA12.setDescuentoAdicional(String.format("%12.2f", request.getIva()).trim().replace(",", "."));
+            totalImpuestoIVA12.setValor(String.format("%12.2f", request.getTotal()).trim().replace(",", "."));
             totalConImpuestos.getTotalImpuesto().add(totalImpuestoIVA12);
         }
 
@@ -209,7 +214,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
         infoFactura.setTotalConImpuestos(totalConImpuestos);
         InvoiceXMLModel.InfoFactura.Pagos.Pago pago = new InvoiceXMLModel.InfoFactura.Pagos.Pago();
         pago.setFormaPago(paymentCode(payment));
-        pago.setTotal(String.format("%12.2f", request.getTotal()).trim());
+        pago.setTotal(String.format("%12.2f", request.getTotal()).trim().replace(",", "."));
         pago.setPlazo("0");
         pago.setUnidadTiempo("dias");
         InvoiceXMLModel.InfoFactura.Pagos pagos = new InvoiceXMLModel.InfoFactura.Pagos();
@@ -281,20 +286,29 @@ public class InvoiceServiceImpl implements IInvoiceService {
     }
 
     private String generateVerificationDigit(String key) {
-        int factor = 2;
-        int sum = 0;
-        for (int i = 0; i < key.length(); i++) {
-            int digit = Integer.parseInt(key.substring(i, i + 1));
-            sum += (digit * factor);
-            factor = (factor == 7) ? 2 : ++factor;
+        int baseMultiplicador = 7;
+        int[] resultados = new int[key.length()];
+        int multiplicador = 2;
+        int total = 0;
+        int verificador = 0;
+        for (int i = resultados.length - 1; i >= 0; i--) {
+            resultados[i] = Integer.parseInt(Character.toString(key.charAt(i)));
+            resultados[i] = resultados[i] * multiplicador;
+            multiplicador++;
+            if (multiplicador > baseMultiplicador) {
+                multiplicador = 2;
+            }
+            total += resultados[i];
         }
-        int verificationDigit = 11 - (sum % 11);
-        if(verificationDigit == 11)
-            verificationDigit = 0;
-        else if(verificationDigit == 10)
-            verificationDigit = 1;
-        key += verificationDigit;
-        return key;
+        if (total == 0 || total == 1) {
+            verificador = 0;
+        } else {
+            verificador = (11 - (total % 11)) == 11 ? 0 : (11 - (total % 11));
+        }
+        if (verificador == 10) {
+            verificador = 1;
+        }
+        return String.valueOf(verificador);
     }
 
     private String paymentCode(Payment payment) {

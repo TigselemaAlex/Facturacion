@@ -1,6 +1,7 @@
 package com.capibaracode.backend.util.xml;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,12 @@ import java.util.List;
 @Getter
 @Setter
 public class InvoiceXMLModel {
+
+    @JacksonXmlProperty(isAttribute = true)
+    private String id;
+
+    @JacksonXmlProperty(isAttribute = true)
+    private String version;
 
     private InfoTributaria infoTributaria;
 

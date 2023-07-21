@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<factura id="comprobante" version="2.1.0">
+  <infoTributaria>
+    <ambiente>1</ambiente>
+    <tipoEmision>1</tipoEmision>
+    <razonSocial>Infinyt Corp</razonSocial>
+    <nombreComercial>Infinyt Corp</nombreComercial>
+    <ruc>1751288505001</ruc>
+    <claveAcceso>2007202301175128850500110010010000000121234567816</claveAcceso>
+    <codDoc>01</codDoc>
+    <estab>001</estab>
+    <ptoEmi>001</ptoEmi>
+    <secuencial>000000012</secuencial>
+    <dirMatriz>Quevedo</dirMatriz>
+  </infoTributaria>
+  <infoFactura>
+    <fechaEmision>20/07/2023</fechaEmision>
+    <dirEstablecimiento>Quevedo</dirEstablecimiento>
+    <contribuyenteEspecial>536</contribuyenteEspecial>
+    <obligadoContabilidad>SI</obligadoContabilidad>
+    <tipoIdentificacionComprador>05</tipoIdentificacionComprador>
+    <guiaRemision>001-001-000000012</guiaRemision>
+    <razonSocialComprador>Kevin Tuetano</razonSocialComprador>
+    <identificacionComprador>2000145597001</identificacionComprador>
+    <direccionComprador>Fondo Bikini</direccionComprador>
+    <totalSinImpuestos>24</totalSinImpuestos>
+    <totalDescuento>0</totalDescuento>
+    <totalConImpuestos>
+      <totalImpuesto>
+        <codigo>2</codigo>
+        <codigoPorcentaje>2</codigoPorcentaje>
+        <descuentoAdicional>0.12</descuentoAdicional>
+        <baseImponible>24.00</baseImponible>
+        <valor>26.88</valor>
+      </totalImpuesto>
+    </totalConImpuestos>
+    <propina>0.00</propina>
+    <importeTotal>26.88</importeTotal>
+    <moneda>DOLAR</moneda>
+    <pagos>
+      <pago>
+        <formaPago>01</formaPago>
+        <total>26.88</total>
+        <plazo>0</plazo>
+        <unidadTiempo>dias</unidadTiempo>
+      </pago>
+    </pagos>
+  </infoFactura>
+  <detalles>
+    <detalle>
+      <codigoPrincipal>CRN-01</codigoPrincipal>
+      <descripcion>Carne de cuy 200gr</descripcion>
+      <cantidad>2.00</cantidad>
+      <precioUnitario>12.00</precioUnitario>
+      <descuento>0.00</descuento>
+      <precioTotalSinImpuesto>4.00</precioTotalSinImpuesto>
+      <impuestos>
+        <impuesto>
+          <codigo>2</codigo>
+          <codigoPorcentaje>0</codigoPorcentaje>
+          <tarifa>0</tarifa>
+          <baseImponible>4.00</baseImponible>
+          <valor>24.00</valor>
+        </impuesto>
+      </impuestos>
+    </detalle>
+  </detalles>
+</factura>
